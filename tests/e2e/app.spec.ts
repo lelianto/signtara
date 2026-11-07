@@ -20,20 +20,28 @@ test('navigation, register, unavailable vocabulary and persistent progress',asyn
 });
 test('camera permission denial on auto-start and manual retry',async({page})=>{
  await page.addInitScript(()=>Object.defineProperty(navigator,'mediaDevices',{value:{getUserMedia:()=>Promise.reject(new DOMException('denied','NotAllowedError')),enumerateDevices:()=>Promise.resolve([])}}));
- await page.goto('/');await expect(page.getByText('Izin kamera ditolak.',{exact:false})).toBeVisible();
- await page.getByRole('button',{name:'Nyalakan kamera'}).click();await expect(page.getByText('Izin kamera ditolak.',{exact:false})).toBeVisible();
+ await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+ await expect(page.getByText('Izin kamera ditolak.',{exact:false})).toBeVisible();
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+ await expect(page.getByText('Izin kamera ditolak.',{exact:false})).toBeVisible();
 });
 test('missing two-hand model releases camera on auto-start',async({page})=>{
  await referenceStream(page,'A');await page.route('**/models/twohand-v1/model.json',r=>r.fulfill({status:404,body:'missing'}));
- await page.goto('/');await expect(page.getByText('Kamera atau model gagal:',{exact:false})).toBeVisible();
+ await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+ await expect(page.getByText('Kamera atau model gagal:',{exact:false})).toBeVisible();
  expect(await page.evaluate(()=>(window as any).__testStream.getTracks().every((t:MediaStreamTrack)=>t.readyState==='ended'))).toBe(true);
 });
 test('camera disconnect is reported after auto-start',async({page})=>{
  await page.addInitScript(()=>{const canvas=document.createElement('canvas');canvas.width=640;canvas.height=480;const stream=canvas.captureStream(10);Object.defineProperty(navigator,'mediaDevices',{value:{getUserMedia:()=>{setTimeout(()=>stream.getVideoTracks()[0].dispatchEvent(new Event('ended')),1000);return Promise.resolve(stream)},enumerateDevices:()=>Promise.resolve([])}})});
- await page.goto('/');await expect(page.getByText('Kamera terputus.',{exact:false})).toBeVisible();
+ await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+ await expect(page.getByText('Kamera terputus.',{exact:false})).toBeVisible();
 });
 for(const letter of ['A','C'])test(`real two-hand pipeline auto-starts, recognizes reference ${letter} and cleans up`,async({page})=>{
  await referenceStream(page,letter);await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue(letter,{timeout:15000});
  if(letter==='A')await expect(page.getByRole('status').filter({hasText:'Dua tangan terdeteksi'})).toBeVisible();
@@ -53,7 +61,9 @@ test('no hands never creates a letter',async({page})=>{
   const c=document.createElement('canvas');c.width=640;c.height=480;const ctx=c.getContext('2d')!;ctx.fillStyle='white';ctx.fillRect(0,0,640,480);const s=canvasStream(c);return s;
   function canvasStream(canvas:HTMLCanvasElement){const st=canvas.captureStream(15);const timer=setInterval(()=>ctx.fillRect(0,0,640,480),66);const t=st.getVideoTracks()[0],stop=t.stop.bind(t);t.stop=()=>{clearInterval(timer);stop()};return st}
  }}}));
- await page.goto('/');await expect(page.getByText('Tangan belum terdeteksi',{exact:true})).toBeVisible({timeout:20000});await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('');await page.getByRole('button',{name:'Hentikan kamera'}).click();
+ await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+ await expect(page.getByText('Tangan belum terdeteksi',{exact:true})).toBeVisible({timeout:20000});await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('');await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('model worker consumes both hands rather than the first hand only',async({page})=>{
  await page.goto('/');const output=await page.evaluate(async()=>{
@@ -71,12 +81,14 @@ test('desktop/mobile layout and transparent reference sources',async({page})=>{
 
 test('real A recognition survives a 16:9 camera with letterboxed input',async({page})=>{
  await referenceStream(page,'A',true);await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
  await expect(page.getByText('1280 × 720 · rasio dikoreksi')).toBeVisible();
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('personal calibration persists, suppresses training output, requires hand release, then uses fresh inference',async({page})=>{
  await referenceStream(page,'A',true);await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
  await page.getByRole('button',{name:'Simpan contoh pribadi A',exact:true}).click();
  await expect(page.getByText('8 contoh pribadi tersimpan.',{exact:false})).toBeVisible({timeout:15000});
@@ -86,32 +98,35 @@ test('personal calibration persists, suppresses training output, requires hand r
  await expect(page.getByText('Siap menguji A.',{exact:false})).toBeVisible({timeout:10000});
  await page.evaluate(()=>(window as any).__setTestBlank(false));
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:15000});
- await expect(page.getByText('Model menggunakan contoh pribadi yang Anda beri label.')).toBeVisible();
+ await expect(page.getByText('Hasil memakai contoh pribadi',{exact:false})).toBeVisible();
  await page.reload();await expect(page.getByText('8 contoh pribadi tersimpan.',{exact:false})).toBeVisible();
  await page.getByRole('button',{name:'Pengaturan',exact:true}).click();
  await page.getByRole('button',{name:'Hapus semua contoh pribadi'}).click();
  await expect(page.getByText('Contoh pribadi dihapus.',{exact:false})).toBeVisible();
  await page.reload();await expect(page.getByText('0 contoh pribadi tersimpan.',{exact:false})).toBeVisible();
- await page.getByRole('button',{name:'Hentikan kamera'}).click();
+ if(await page.getByRole('button',{name:'Hentikan kamera'}).isVisible()) await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('hand count is visible directly on preview from actual landmark detection',async({page})=>{
  await referenceStream(page,'A');await page.goto('/');
- await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('Pelacak: 2/2 tangan',{timeout:20000});
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+ await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('2/2 tangan',{timeout:20000});
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
- await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('Pelacak: 0/2 tangan');
+ await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('0/2 tangan');
 });
 test('single-hand C remains one tracked hand with recovery enabled',async({page})=>{
  await referenceStream(page,'C');await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('C',{timeout:20000});
- await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('Pelacak: 1/2 tangan');
- await page.waitForTimeout(800);await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('Pelacak: 1/2 tangan');
+ await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('1/2 tangan');
+ await page.waitForTimeout(800);await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('1/2 tangan');
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('tracker finds two hands in A previously missed by IMAGE extraction',async({page})=>{
  await referenceStream(page,'A');
  await page.route('**/ref/A/a_da7115.jpg',async route=>{const r=await page.request.get('/ref/tracking-fixture-A.jpg');await route.fulfill({response:r})});
  await page.goto('/');
- await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('Pelacak: 2/2 tangan',{timeout:20000});
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+ await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('2/2 tangan',{timeout:20000});
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('missing-hand fixture records the actual primary and recovery counts',async({page})=>{
@@ -140,6 +155,7 @@ test('horizontally mirrored live camera stream for A still commits A',async({pag
   }}});
  });
  await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
@@ -162,6 +178,7 @@ test('sequential signs A through F commit ABCDEF in a single camera session',asy
   }}});
  });
  await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
  await page.evaluate(()=>(window as any).__setSignLetter('B'));
  await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('AB',{timeout:20000});
@@ -199,8 +216,9 @@ test('single-screen cockpit fits 100% within desktop viewports with zero scroll 
  for(const vp of [{width:1440,height:900},{width:1366,height:768},{width:1280,height:720}]){
   await page.setViewportSize(vp);
   await page.goto('/');
-  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
   await page.getByRole('button',{name:'+ TERIMA KASIH'}).click();
+  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
   await expect(page.getByTestId('regional-translation-output')).toBeVisible();
   await expect(page.getByTestId('live-aksara-output')).toBeVisible();
   const docFit=await page.evaluate(()=>({
@@ -229,6 +247,7 @@ test('single-screen cockpit fits 100% within desktop viewports with zero scroll 
 test('dual input mode: direct regional-to-regional text flow, swap button, and conditional Aksara visibility',async({page})=>{
  await referenceStream(page,'A');
  await page.goto('/');
+ await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
  // Switching to direct text automatically turns off the live camera
  await page.getByTestId('mode-text-btn').click();
