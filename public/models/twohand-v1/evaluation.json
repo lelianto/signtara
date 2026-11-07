@@ -1,0 +1,496 @@
+{
+  "version": "twohand-v1",
+  "developmentSetCaveat": "This is a development image evaluation: feature/cleaning revisions were informed by exploratory errors on this split. It is not an untouched confirmation set or a signer-independent test.",
+  "protocol": "Original repository train/test image split; exact SHA-256 overlaps and within-split duplicates removed. NOT signer-independent; signer metadata unavailable. Static photos only. Thresholds fixed before test evaluation. Test not used for training.",
+  "source": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset",
+  "withinSplitDuplicates": {
+    "train": 4,
+    "test": 1
+  },
+  "trainingExclusions": [
+    {
+      "file": "A.2d53f1a4-e263-11ed-a0c4-001a7dda7115.jpg",
+      "label": "A",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "H.0c0a22ec-e265-11ed-9ba0-001a7dda7115.jpg",
+      "label": "H",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "I.6a71e4c7-e265-11ed-acbc-001a7dda7115.jpg",
+      "label": "I",
+      "detected": 2,
+      "expected": 1
+    },
+    {
+      "file": "S.0dd2c591-e268-11ed-a18b-001a7dda7115.jpg",
+      "label": "S",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "S.16c74f6a-e268-11ed-b4ce-001a7dda7115.jpg",
+      "label": "S",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "S.e704f129-e267-11ed-b812-001a7dda7115.jpg",
+      "label": "S",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "S.eff96948-e267-11ed-8d58-001a7dda7115.jpg",
+      "label": "S",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "S.f2f5b21a-e267-11ed-a839-001a7dda7115.jpg",
+      "label": "S",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "U.85f89101-e268-11ed-8cbf-001a7dda7115.jpg",
+      "label": "U",
+      "detected": 0,
+      "expected": 1
+    },
+    {
+      "file": "U.8bf0a70a-e268-11ed-bf8e-001a7dda7115.jpg",
+      "label": "U",
+      "detected": 2,
+      "expected": 1
+    },
+    {
+      "file": "U.8eecb57d-e268-11ed-bed4-001a7dda7115.jpg",
+      "label": "U",
+      "detected": 0,
+      "expected": 1
+    },
+    {
+      "file": "U.94e4ca9b-e268-11ed-8cd2-001a7dda7115.jpg",
+      "label": "U",
+      "detected": 2,
+      "expected": 1
+    },
+    {
+      "file": "U.97e0e8c3-e268-11ed-802c-001a7dda7115.jpg",
+      "label": "U",
+      "detected": 0,
+      "expected": 1
+    },
+    {
+      "file": "W.011a0cad-e269-11ed-9adb-001a7dda7115.jpg",
+      "label": "W",
+      "detected": 0,
+      "expected": 2
+    },
+    {
+      "file": "Y.7c3c2997-e269-11ed-90f3-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 0,
+      "expected": 2
+    },
+    {
+      "file": "Y.7f38545b-e269-11ed-84db-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 0,
+      "expected": 2
+    },
+    {
+      "file": "Y.823467ce-e269-11ed-8072-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "Y.882cae84-e269-11ed-9baf-001a7dda7115 - Copy.jpg",
+      "label": "Y",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "Y.882cae84-e269-11ed-9baf-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "Y.8b28f93d-e269-11ed-9bf7-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "Y.8e2508be-e269-11ed-b515-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "Y.9d120d61-e269-11ed-832b-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 0,
+      "expected": 2
+    },
+    {
+      "file": "Y.a30a4a9e-e269-11ed-840f-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 1,
+      "expected": 2
+    },
+    {
+      "file": "Y.a6066d20-e269-11ed-a043-001a7dda7115.jpg",
+      "label": "Y",
+      "detected": 1,
+      "expected": 2
+    }
+  ],
+  "sourceCommit": "e1a48c6caa9d12318c8561e9962da845ab50226e",
+  "calibration": {
+    "protocol": "Leave-one-image-out on training images only; choose lowest grid threshold at or above the 0.35 safety floor with zero accepted errors and at least 50 accepted samples. Not signer-independent.",
+    "grid": [
+      {
+        "threshold": 0.25,
+        "accepted": 381,
+        "correct": 380
+      },
+      {
+        "threshold": 0.35,
+        "accepted": 379,
+        "correct": 379
+      },
+      {
+        "threshold": 0.45,
+        "accepted": 376,
+        "correct": 376
+      },
+      {
+        "threshold": 0.55,
+        "accepted": 370,
+        "correct": 370
+      },
+      {
+        "threshold": 0.65,
+        "accepted": 364,
+        "correct": 364
+      },
+      {
+        "threshold": 0.75,
+        "accepted": 348,
+        "correct": 348
+      }
+    ],
+    "minScore": 0.35,
+    "maxDistance": 0.2
+  },
+  "overlapRemoved": 0,
+  "trainingImages": 388,
+  "trainingHands": {
+    "one": 154,
+    "two": 234
+  },
+  "testImages": 103,
+  "testDetected": 103,
+  "top1Correct": 98,
+  "top1Accuracy": 0.9514563106796117,
+  "accepted": 94,
+  "acceptedCorrect": 94,
+  "acceptedAccuracy": 1,
+  "coverage": 0.912621359223301,
+  "perClass": [
+    {
+      "label": "A",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "B",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "C",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "D",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "E",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "F",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "G",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "H",
+      "total": 3,
+      "detected": 3,
+      "correct": 3,
+      "accepted": 3,
+      "acceptedCorrect": 3,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "I",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "J",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 0.8,
+      "recall": 1,
+      "f1": 0.8888888888888888
+    },
+    {
+      "label": "K",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "L",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 0.8,
+      "recall": 1,
+      "f1": 0.8888888888888888
+    },
+    {
+      "label": "M",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "N",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "O",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "P",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 2,
+      "acceptedCorrect": 2,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "Q",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 0.8,
+      "recall": 1,
+      "f1": 0.8888888888888888
+    },
+    {
+      "label": "R",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "S",
+      "total": 4,
+      "detected": 4,
+      "correct": 2,
+      "accepted": 2,
+      "acceptedCorrect": 2,
+      "precision": 1,
+      "recall": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "label": "T",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "U",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 3,
+      "acceptedCorrect": 3,
+      "precision": 0.8,
+      "recall": 1,
+      "f1": 0.8888888888888888
+    },
+    {
+      "label": "V",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 0.8,
+      "recall": 1,
+      "f1": 0.8888888888888888
+    },
+    {
+      "label": "W",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    {
+      "label": "X",
+      "total": 4,
+      "detected": 4,
+      "correct": 3,
+      "accepted": 3,
+      "acceptedCorrect": 3,
+      "precision": 1,
+      "recall": 0.75,
+      "f1": 0.8571428571428571
+    },
+    {
+      "label": "Y",
+      "total": 4,
+      "detected": 4,
+      "correct": 2,
+      "accepted": 1,
+      "acceptedCorrect": 1,
+      "precision": 1,
+      "recall": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "label": "Z",
+      "total": 4,
+      "detected": 4,
+      "correct": 4,
+      "accepted": 4,
+      "acceptedCorrect": 4,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    }
+  ]
+}

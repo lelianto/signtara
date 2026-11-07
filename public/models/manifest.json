@@ -1,0 +1,47 @@
+{
+  "version": "isyara-models-v2",
+  "activeClassifier": "twohand-v1",
+  "trackerRuntime": {
+    "primary": "VIDEO",
+    "recovery": "same-frame IMAGE and mirrored IMAGE",
+    "primaryDetectionThreshold": 0.5,
+    "recoveryDetectionThreshold": 0.35,
+    "presenceThreshold": 0.5
+  },
+  "featureCount": 254,
+  "featureTransform": {
+    "version": "aspect-4by3-v1",
+    "referenceAspectRatio": 1.3333333333333333,
+    "actualCameraDimensions": true
+  },
+  "handSlots": "spatial, ordered by unmirrored wrist x",
+  "landmarker": {
+    "version": "float16/1",
+    "runtime": "0.10.14",
+    "license": "Apache-2.0"
+  },
+  "classifier": {
+    "type": "nearest-prototype",
+    "license": "MIT dataset; new implementation",
+    "source": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset",
+    "commit": "e1a48c6caa9d12318c8561e9962da845ab50226e"
+  },
+  "assets": [
+    {
+      "path": "models/twohand-v1/model.json",
+      "sha256": "3961058813700127db08ddecc5eda43ee70248e6a5ffde8bef79f71083cce438"
+    },
+    {
+      "path": "models/twohand-v1/evaluation.json",
+      "sha256": "50c3d67b5c72aabe3c946a4383583827d9ec5b14e8f9590dab30f11aeeb272a5"
+    },
+    {
+      "path": "models/hand_landmarker.task",
+      "sha256": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1"
+    },
+    {
+      "path": "ref/provenance.json",
+      "sha256": "8f0b58f506b98aa2619f6b643fc97c27ed133b3d8897718edd851e10d87ac76e"
+    }
+  ]
+}

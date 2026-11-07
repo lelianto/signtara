@@ -1,0 +1,11 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+output/
+.DS_Store
+.env
+
+ml/data/*
+!ml/data/landmarks.json
+

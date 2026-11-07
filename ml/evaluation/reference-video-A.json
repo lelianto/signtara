@@ -1,0 +1,15 @@
+{
+  "protocol": "Training-reference photo video-stream smoke diagnostic. No held-out signer or live webcam; no accuracy claim.",
+  "results": [
+    {
+      "reference": "A",
+      "predicted": "A",
+      "correct": true,
+      "score": 0.6930245981767955,
+      "status": "Dua tangan terdeteksi. Tahan bentuk dan posisi kedua tangan hingga stabil.",
+      "elapsedMs": 1719.0595
+    }
+  ],
+  "correct": 1,
+  "total": 1
+}

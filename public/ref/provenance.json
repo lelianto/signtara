@@ -1,0 +1,190 @@
+{
+  "source": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset",
+  "commit": "e1a48c6caa9d12318c8561e9962da845ab50226e",
+  "license": "MIT, Copyright (c) 2024 Rhio Sutoyo",
+  "verification": "Research dataset labels; not independently verified by a BISINDO teacher. References are training images, not held-out evaluation images.",
+  "entries": {
+    "A": {
+      "file": "A/a_da7115.jpg",
+      "originalFile": "train/A.3c4099c2-e263-11ed-972e-001a7dda7115.jpg",
+      "sha256": "f7b4d8e02ae86506eecb32a79ebeb9bba0dadcdf7af35f56ea4fa435bcf4315c",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/A.3c4099c2-e263-11ed-972e-001a7dda7115.jpg"
+    },
+    "B": {
+      "file": "B/b_da7115.jpg",
+      "originalFile": "train/B.70de14bf-e263-11ed-a23d-001a7dda7115.jpg",
+      "sha256": "9fe7e04b55302e632aff3eac6fcda1e38b7b19ac835877a050ababd3290526fa",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/B.70de14bf-e263-11ed-a23d-001a7dda7115.jpg"
+    },
+    "C": {
+      "file": "C/c_da7115.jpg",
+      "originalFile": "train/C.ae705135-e263-11ed-bd79-001a7dda7115.jpg",
+      "sha256": "56a0199fc8aa28956167cee87ca2bbf4a4b70021afc1d1fc68532c142c7948c9",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/C.ae705135-e263-11ed-bd79-001a7dda7115.jpg"
+    },
+    "D": {
+      "file": "D/d_da7115.jpg",
+      "originalFile": "train/D.15ca5aa4-e264-11ed-ba4f-001a7dda7115.jpg",
+      "sha256": "52c0bc8ff3bc28e1bdab493d335198a5aa94fce5fa09ec61998744f0e511daed",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/D.15ca5aa4-e264-11ed-ba4f-001a7dda7115.jpg"
+    },
+    "E": {
+      "file": "E/e_da7115.jpg",
+      "originalFile": "train/E.446d607c-e264-11ed-aada-001a7dda7115.jpg",
+      "sha256": "b702d629fad9ffd3c558ccd0ce40ebc1d7884c6ec2ec500b33f2adf9c99b612b",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/E.446d607c-e264-11ed-aada-001a7dda7115.jpg"
+    },
+    "F": {
+      "file": "F/f_da7115.jpg",
+      "originalFile": "train/F.8af16818-e264-11ed-b98a-001a7dda7115.jpg",
+      "sha256": "3c914ee4c7c825fe9480e35534a44c432fd83403cf7a7a296d158ef05942461c",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/F.8af16818-e264-11ed-b98a-001a7dda7115.jpg"
+    },
+    "G": {
+      "file": "G/g_da7115.jpg",
+      "originalFile": "train/G.cb7c6568-e264-11ed-bd61-001a7dda7115.jpg",
+      "sha256": "078e2d001e90f161df41b3e80f372b80dc01fbe87d5595701d9befabde5e7dc9",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/G.cb7c6568-e264-11ed-bd61-001a7dda7115.jpg"
+    },
+    "H": {
+      "file": "H/h_da7115.jpg",
+      "originalFile": "train/H.1df2eb2a-e265-11ed-9bcd-001a7dda7115.jpg",
+      "sha256": "239f7a3d59b7e435f60aa625c6b09c8709ffde00df65ad1a2707e42f7a38e064",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/H.1df2eb2a-e265-11ed-9bcd-001a7dda7115.jpg"
+    },
+    "I": {
+      "file": "I/i_da7115.jpg",
+      "originalFile": "train/I.4f94cc95-e265-11ed-8a24-001a7dda7115.jpg",
+      "sha256": "deb8e8d1e2998c8fe8738304bc5d481ab755d3c82ef454426a8e8016877d65b7",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/I.4f94cc95-e265-11ed-8a24-001a7dda7115.jpg"
+    },
+    "J": {
+      "file": "J/j_da7115.jpg",
+      "originalFile": "train/J.872fbb2f-e265-11ed-a698-001a7dda7115.jpg",
+      "sha256": "975d2fa8240a9860bf1c72e6eea9373bee3fa4cf5da4352fca31e4a1861a4737",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/J.872fbb2f-e265-11ed-a698-001a7dda7115.jpg"
+    },
+    "K": {
+      "file": "K/k_da7115.jpg",
+      "originalFile": "train/K.dca38797-e265-11ed-8078-001a7dda7115.jpg",
+      "sha256": "0887e9019ea6a483f68d4d43be0a1465aa6ba26e2649e4cab39b34370640f309",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/K.dca38797-e265-11ed-8078-001a7dda7115.jpg"
+    },
+    "L": {
+      "file": "L/l_da7115.jpg",
+      "originalFile": "train/L.4100f150-e266-11ed-a951-001a7dda7115.jpg",
+      "sha256": "8a0efa9421bc511b046d18abfdd3be637777622f5b153aa53ec201369900c8b2",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/L.4100f150-e266-11ed-a951-001a7dda7115.jpg"
+    },
+    "M": {
+      "file": "M/m_da7115.jpg",
+      "originalFile": "train/M.60b88ffb-e266-11ed-acb7-001a7dda7115.jpg",
+      "sha256": "603da2c66b141d6cb9176090e59456699559d17f1d9286e252bf601d9a5ef23d",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/M.60b88ffb-e266-11ed-acb7-001a7dda7115.jpg"
+    },
+    "N": {
+      "file": "N/n_da7115.jpg",
+      "originalFile": "train/N.925a8bc0-e266-11ed-b6c7-001a7dda7115.jpg",
+      "sha256": "d2b34b5425ea1c7dad3a25b6b3ea8a6a1eb5df18475a59bfde124255b3753511",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/N.925a8bc0-e266-11ed-b6c7-001a7dda7115.jpg"
+    },
+    "O": {
+      "file": "O/o_da7115.jpg",
+      "originalFile": "train/O.e7cbea6f-e266-11ed-97d1-001a7dda7115.jpg",
+      "sha256": "23710a5ba32a17c89aed7e39a1911923fda88e51b4c1cf13da5f803651f04743",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/O.e7cbea6f-e266-11ed-97d1-001a7dda7115.jpg"
+    },
+    "P": {
+      "file": "P/p_da7115.jpg",
+      "originalFile": "train/P.2857ad34-e267-11ed-af02-001a7dda7115.jpg",
+      "sha256": "91b7179f87e37c9c172fc3d1be9de7fcb050effc626b8ee13f492d01defb8375",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/P.2857ad34-e267-11ed-af02-001a7dda7115.jpg"
+    },
+    "Q": {
+      "file": "Q/q_da7115.jpg",
+      "originalFile": "train/Q.74d37993-e267-11ed-b20c-001a7dda7115.jpg",
+      "sha256": "2471f882ed00a2ca83818f0342a598fe26eb2381bb483d783fa792c1b2e015ff",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/Q.74d37993-e267-11ed-b20c-001a7dda7115.jpg"
+    },
+    "R": {
+      "file": "R/r_da7115.jpg",
+      "originalFile": "train/R.c44eaee3-e267-11ed-b2ba-001a7dda7115.jpg",
+      "sha256": "d60081a8315eb47299a86427bc0e069c57d14e496c5ee7786e18cdd958812487",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/R.c44eaee3-e267-11ed-b2ba-001a7dda7115.jpg"
+    },
+    "S": {
+      "file": "S/s_da7115.jpg",
+      "originalFile": "train/S.01e2824b-e268-11ed-a517-001a7dda7115.jpg",
+      "sha256": "99168f707b9d98e2e73786f779e122f5f827ae310b43f92c62cd30dd126239dd",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/S.01e2824b-e268-11ed-a517-001a7dda7115.jpg"
+    },
+    "T": {
+      "file": "T/t_da7115.jpg",
+      "originalFile": "train/T.3f726fe3-e268-11ed-bb87-001a7dda7115.jpg",
+      "sha256": "a04139ba274a0488cb0466a9a24a9c7a35099587ea860553ce52af286ca718e9",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/T.3f726fe3-e268-11ed-bb87-001a7dda7115.jpg"
+    },
+    "U": {
+      "file": "U/u_da7115.jpg",
+      "originalFile": "train/U.7a07c210-e268-11ed-b5c2-001a7dda7115.jpg",
+      "sha256": "d8e5a80504b9372bcd45fcac7e9c1df95e40804fd769dc424e9edd2f43e95730",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/U.7a07c210-e268-11ed-b5c2-001a7dda7115.jpg"
+    },
+    "V": {
+      "file": "V/v_da7115.jpg",
+      "originalFile": "train/V.b1a10e1e-e268-11ed-87ae-001a7dda7115.jpg",
+      "sha256": "01308ab6dc6d02348a41db5e697951d67fe5c2be348bfb54c71c5b96e812b6ed",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/V.b1a10e1e-e268-11ed-87ae-001a7dda7115.jpg"
+    },
+    "W": {
+      "file": "W/w_da7115.jpg",
+      "originalFile": "train/W.1302baf6-e269-11ed-8354-001a7dda7115.jpg",
+      "sha256": "46cc11609601079f03c88bf48658be8eab6a661042e116f4f161b38d23443c6c",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/W.1302baf6-e269-11ed-8354-001a7dda7115.jpg"
+    },
+    "X": {
+      "file": "X/x_da7115.jpg",
+      "originalFile": "train/X.479ecf89-e269-11ed-bf34-001a7dda7115.jpg",
+      "sha256": "2b7aa3a7654ea878eba791ef0bf52351148e5fdd3d54bda17b539309ef1ce14c",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/X.479ecf89-e269-11ed-bf34-001a7dda7115.jpg"
+    },
+    "Y": {
+      "file": "Y/y_da7115.jpg",
+      "originalFile": "train/Y.9719aab8-e269-11ed-b55f-001a7dda7115.jpg",
+      "sha256": "bc056ff235a2b63f847170163adf2b94d3a61d09fcbc4644ef531b5f5f1ec24b",
+      "expectedHands": 2,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/Y.9719aab8-e269-11ed-b55f-001a7dda7115.jpg"
+    },
+    "Z": {
+      "file": "Z/z_da7115.jpg",
+      "originalFile": "train/Z.dda0eb45-e269-11ed-a175-001a7dda7115.jpg",
+      "sha256": "c6bd916cf87f7fb27e3d6481a513044cf3f14d7c2d1fd8013483fd3d353269f7",
+      "expectedHands": 1,
+      "sourceURL": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset/blob/e1a48c6caa9d12318c8561e9962da845ab50226e/train/Z.dda0eb45-e269-11ed-a175-001a7dda7115.jpg"
+    }
+  }
+}

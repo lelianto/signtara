@@ -1,0 +1,83 @@
+import type { CulturalLiteracyItem } from '../types';
+
+export const culturalLiteracyCorpus: CulturalLiteracyItem[] = [
+  {
+    term: 'matur nuwun',
+    languageCode: 'jv',
+    analysis: 'Ungkapan rasa terima kasih dalam Bahasa Jawa Krama yang bermakna menyampaikan rasa hormat dan penghargaan tulus kepada lawan bicara.',
+    etymology: 'Berasal dari kata "matur" (menyampaikan dengan hormat dari bawah ke atas) dan "nuwun" (memohon atau menerima dengan penuh takzim di atas kepala).',
+    culturalInsight: 'Dalam budaya Jawa, mengucapkan "Matur nuwun" sering disertai gestur membungkukkan badan sedikit atau menangkupkan tangan sebagai wujud lembah manah (kerendahan hati).',
+    registerLevel: 'Krama / Halus (Formal & Sopan). Bentuk santainya adalah "Suwun".',
+    usageExamples: [
+      'Matur nuwun sanget dhumateng kesaenan panjenengan.',
+      'Matur nuwun sampun kersa rawuh.',
+    ],
+  },
+  {
+    term: 'sampurasun',
+    languageCode: 'sun',
+    analysis: 'Salam penghormatan tradisional masyarakat Sunda yang diucapkan saat bertemu atau memulai pembicaraan, dan dijawab dengan "Rampes".',
+    etymology: 'Berasal dari frasa Sunda Kuno "Sampura ning ingsun" yang berarti "Maafkanlah diri saya" atau "Semoga kesempurnaan menyertai Anda".',
+    culturalInsight: 'Mencerminkan falsafah Sunda "Silih Asih, Silih Asah, Silih Asuh"—memulai perjumpaan dengan membersihkan hati dan saling memaafkan.',
+    registerLevel: 'Lemes / Luhur (Sangat Sopan & Kultural).',
+    usageExamples: [
+      'Sampurasun, nepangkeun wastana abdi Lelianto.',
+      'Sampurasun dulur-dulur sadayana.',
+    ],
+  },
+  {
+    term: 'hatur nuhun',
+    languageCode: 'sun',
+    analysis: 'Ungkapan terima kasih dalam Bahasa Sunda halus untuk menghargai pemberian atau bantuan orang lain.',
+    etymology: 'Dari kata "hatur" (menghaturkan/menyampaikan dengan hormat) dan "nuhun" (menerima di atas kepala/menjunjung).',
+    culturalInsight: 'Menunjukkan tata krama undak-usuk basa Sunda yang menempatkan lawan bicara pada posisi terhormat.',
+    registerLevel: 'Lemes / Halus (baku & sopan). Bentuk akrabnya adalah "Nuhun".',
+    usageExamples: ['Hatur nuhun kana kasaean anjeun.', 'Hatur nuhun pisan, Kang.'],
+  },
+  {
+    term: 'om swastyastu',
+    languageCode: 'ban',
+    analysis: 'Salam pembuka dan doa keselamatan masyarakat Bali yang bermakna "Semoga berada dalam keadaan selamat atas karunia Hyang Widhi".',
+    etymology: 'Berasal dari bahasa Sanskerta: "Om" (aksara suci), "Swasti" (selamat/bahagia/sejahtera), dan "Astu" (semoga terjadilah demikian).',
+    culturalInsight: 'Diucapkan sambil melakukan gestur "Panganjali" (menangkupkan kedua telapak tangan di depan dada) yang selaras dengan filosofi Tri Hita Karana.',
+    registerLevel: 'Bali Alus Singgih / Universal Hormat.',
+    usageExamples: ['Om Swastyastu, mugi sami ngemanggihan karahayuan.'],
+  },
+  {
+    term: 'horas',
+    languageCode: 'bbc',
+    analysis: 'Salam khas masyarakat Batak yang mengungkapkan rasa syukur, sukacita, kesehatan, dan harapan keselamatan bersama.',
+    etymology: 'Berakar dari konsep "Horas tondi madingin, pir tondi matogu" (semoga jiwa/roh tetap sejuk, kuat, dan teguh).',
+    culturalInsight: 'Tidak sekadar sapaan "Halo" atau "Selamat datang", melainkan doa berkat yang mengikat kekerabatan Dalihan Na Tolu.',
+    registerLevel: 'Universal (Santai maupun Adat Resmi).',
+    usageExamples: ['Horas ma di hita sasude!', 'Horas, selamat datang di Danau Toba.'],
+  },
+  {
+    term: 'siri na pacce',
+    languageCode: 'bug',
+    analysis: 'Falsafah hidup utama masyarakat Bugis-Makassar yang memadukan martabat/harga diri (Siri\') dan solidaritas empati kemanusiaan (Pacce/Pesse).',
+    etymology: '"Siri\'" berarti rasa malu/kehormatan diri, sedangkan "Pacce" berarti rasa pedih di hati melihat penderitaan sesama.',
+    culturalInsight: 'Menjaga keseimbangan antara keteguhan menjaga kehormatan dan kepekaan menolong sesama manusia.',
+    registerLevel: 'Falsafah Adat & Budaya Tinggi.',
+    usageExamples: ['Siri na pacce iyya rupa pusaka ri toriolota.'],
+  },
+  {
+    term: 'mator sakalangkong',
+    languageCode: 'mad',
+    analysis: 'Ungkapan terima kasih paling halus dalam Basa Madhura tingkatan Engghi-Bhunten.',
+    etymology: 'Mator (menyampaikan dengan hormat) + Sakalangkong (melampaui batas kebaikan yang tak terbalaskan).',
+    culturalInsight: 'Mencerminkan kerendahan hati masyarakat Madura yang memandang kebaikan sesama sebagai budi luhur yang patut dijunjung tinggi.',
+    registerLevel: 'Engghi-Bhunten (Halus / Hormat).',
+    usageExamples: ['Mator sakalangkong rajha atas bhantowanna panjhennengngan.'],
+  },
+  {
+    term: 'huma betang',
+    languageCode: 'nij',
+    analysis: 'Falsafah hidup rukun dan kesetaraan masyarakat Dayak Ngaju di Kalimantan Tengah.',
+    etymology: 'Huma (rumah) + Betang (rumah panjang komunal adat Dayak).',
+    culturalInsight: 'Empat pilar Huma Betang — kejujuran, kesetaraan, kebersamaan, dan penghormatan hukum adat/nasional — menjadi fondasi harmoni lintas suku dan agama.',
+    registerLevel: 'Falsafah Adat & Kebudayaan Daerah.',
+    usageExamples: ['Itah belum hinje simpei huang semangat Huma Betang.'],
+  },
+];
+

@@ -1,0 +1,15 @@
+{
+  "protocol": "Training-reference photo video-stream smoke diagnostic. No held-out signer or live webcam; no accuracy claim.",
+  "results": [
+    {
+      "reference": "J",
+      "predicted": "J",
+      "correct": true,
+      "score": 0.9275131408694627,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1366.3096249999999
+    }
+  ],
+  "correct": 1,
+  "total": 1
+}

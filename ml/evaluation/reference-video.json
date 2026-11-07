@@ -1,0 +1,215 @@
+{
+  "protocol": "Training-reference photo video-stream smoke diagnostic. No held-out signer or live webcam; no accuracy claim.",
+  "results": [
+    {
+      "reference": "A",
+      "predicted": "A",
+      "correct": true,
+      "score": 0.8804905797580559,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1102.0539999999999
+    },
+    {
+      "reference": "B",
+      "predicted": "B",
+      "correct": true,
+      "score": 0.9003214990625152,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1087.45725
+    },
+    {
+      "reference": "C",
+      "predicted": "C",
+      "correct": true,
+      "score": 0.9419288638559606,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1192.4927500000003
+    },
+    {
+      "reference": "D",
+      "predicted": "D",
+      "correct": true,
+      "score": 0.9310512820896452,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1102.8277079999998
+    },
+    {
+      "reference": "E",
+      "predicted": "E",
+      "correct": true,
+      "score": 0.9691431675753099,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1265.4610420000008
+    },
+    {
+      "reference": "F",
+      "predicted": "F",
+      "correct": true,
+      "score": 0.9190637869797276,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1086.353416
+    },
+    {
+      "reference": "G",
+      "predicted": "G",
+      "correct": true,
+      "score": 0.9447789908408243,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1147.313166
+    },
+    {
+      "reference": "H",
+      "predicted": "H",
+      "correct": true,
+      "score": 0.6373367997137165,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1079.3342909999992
+    },
+    {
+      "reference": "I",
+      "predicted": "I",
+      "correct": true,
+      "score": 0.932501485905333,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1215.4251670000012
+    },
+    {
+      "reference": "J",
+      "predicted": "J",
+      "correct": true,
+      "score": 0.9381025457971536,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1202.8444579999978
+    },
+    {
+      "reference": "K",
+      "predicted": "K",
+      "correct": true,
+      "score": 0.814343955029479,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1073.5833330000023
+    },
+    {
+      "reference": "L",
+      "predicted": "L",
+      "correct": true,
+      "score": 0.9542083969169933,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1235.5306249999994
+    },
+    {
+      "reference": "M",
+      "predicted": "M",
+      "correct": true,
+      "score": 0.7993046063532614,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1116.2350829999996
+    },
+    {
+      "reference": "N",
+      "predicted": "N",
+      "correct": true,
+      "score": 0.8615440325370903,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1077.1829169999983
+    },
+    {
+      "reference": "O",
+      "predicted": "O",
+      "correct": true,
+      "score": 0.8968729312582723,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1211.2525830000013
+    },
+    {
+      "reference": "P",
+      "predicted": "P",
+      "correct": true,
+      "score": 0.7165162265580278,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1097.9812500000007
+    },
+    {
+      "reference": "Q",
+      "predicted": "Q",
+      "correct": true,
+      "score": 0.9619855187459372,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1041.8884169999983
+    },
+    {
+      "reference": "R",
+      "predicted": "R",
+      "correct": true,
+      "score": 0.9603161423122122,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1230.713584000001
+    },
+    {
+      "reference": "S",
+      "predicted": "S",
+      "correct": true,
+      "score": 0.8337137199039355,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1031.4177089999976
+    },
+    {
+      "reference": "T",
+      "predicted": "T",
+      "correct": true,
+      "score": 0.8942768234477159,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1089.880959000002
+    },
+    {
+      "reference": "U",
+      "predicted": "U",
+      "correct": true,
+      "score": 0.8941265143898867,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1228.9677919999958
+    },
+    {
+      "reference": "V",
+      "predicted": "V",
+      "correct": true,
+      "score": 0.9795628224855715,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1215.222249999999
+    },
+    {
+      "reference": "W",
+      "predicted": "W",
+      "correct": true,
+      "score": 0.9595955117309625,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1048.226042000002
+    },
+    {
+      "reference": "X",
+      "predicted": "X",
+      "correct": true,
+      "score": 0.8654464368130743,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1078.763791999998
+    },
+    {
+      "reference": "Y",
+      "predicted": "Y",
+      "correct": true,
+      "score": 0.6977927386242027,
+      "status": "Pelacak: 2/2 tangan",
+      "elapsedMs": 1049.3794579999958
+    },
+    {
+      "reference": "Z",
+      "predicted": "Z",
+      "correct": true,
+      "score": 0.9572310457512544,
+      "status": "Pelacak: 1/2 tangan",
+      "elapsedMs": 1307.996708000006
+    }
+  ],
+  "correct": 26,
+  "total": 26
+}

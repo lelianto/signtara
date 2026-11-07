@@ -1,0 +1,118 @@
+import type { RegionalLanguagePack } from '../types';
+
+export const ngajuPack: RegionalLanguagePack = {
+  meta: {
+    code: 'nij',
+    isoCode: 'nij',
+    name: 'Dayak Ngaju',
+    nativeName: 'Bahasa Dayak Ngaju',
+    description:
+      'Bahasa komunikasi antarsuku (lingua franca) utama di Kalimantan Tengah sepanjang Daerah Aliran Sungai Kahayan, Kapuas, Katingan, dan Barito.',
+    region: 'Kalimantan Tengah (Palangka Raya, Kapuas, Pulang Pisau, Katingan)',
+    speakers: '1,1+ Juta Penutur',
+    preservationStatus: 'Aktif & Bahasa Pengantar Daerah Kalteng',
+    hasSpeechLevels: false,
+    registerTerms: {
+      casualLabel: 'Tutur Sehari-hari',
+      politeLabel: 'Tutur Hormat / Adat (Huma Betang)',
+    },
+    dialects: [
+      {
+        name: 'Kahayan (Palangka Raya)',
+        region: 'Palangka Raya & Pulang Pisau',
+        description: 'Varian utama yang luas digunakan di ibu kota Kalimantan Tengah.',
+      },
+      {
+        name: 'Kapuas Ngaju',
+        region: 'Kuala Kapuas',
+        description: 'Varian pesisir sungai Kapuas dengan khazanah sastra lisan Karungut.',
+      },
+    ],
+  },
+  markers: [
+    'aku', 'ikau', 'kuman', 'mihup', 'humai', 'danum', 'handak', 'tulak',
+    'batiruh', 'dia', 'jatun', 'narai', 'kueh', 'huma', 'tarima kasih', 'tabe',
+  ],
+  possessives: {
+    my: { casual: 'ku', formal: 'ku', attachSuffix: true },
+    your: { casual: 'm', formal: ' ketun', attachSuffix: true },
+    their: { casual: 'e', formal: 'e', attachSuffix: true },
+  },
+  lexicon: [
+    // Sapaan & Sosial
+    { idTerm: 'terima kasih', casual: 'tarima kasih', formal: 'tarima kasih hai', meaning: 'Ungkapan terima kasih', partOfSpeech: 'phrase' },
+    { idTerm: 'permisi', casual: 'tabe', formal: 'tabe salamat', meaning: 'Salam hormat / permisi khas Dayak Ngaju', partOfSpeech: 'phrase' },
+    { idTerm: 'apa kabar', casual: 'narai kabar', formal: 'narai kabar pahari', meaning: 'Menanyakan kabar', partOfSpeech: 'phrase' },
+    { idTerm: 'maaf', casual: 'ampun', formal: 'laku ampun', meaning: 'Memohon maaf', partOfSpeech: 'phrase' },
+    { idTerm: 'selamat pagi', casual: 'salamat hanjewu', formal: 'salamat hanjewu', meaning: 'Sapaan pagi', partOfSpeech: 'phrase' },
+    { idTerm: 'selamat malam', casual: 'salamat hamalem', formal: 'salamat hamalem', meaning: 'Sapaan malam', partOfSpeech: 'phrase' },
+
+    // Pronomina & Keluarga
+    { idTerm: 'saya', casual: 'aku', formal: 'aku', aliases: ['yaku'], meaning: 'Saya', partOfSpeech: 'pronoun' },
+    { idTerm: 'kamu', casual: 'ikau', formal: 'ketun', meaning: 'Kamu / Anda', partOfSpeech: 'pronoun' },
+    { idTerm: 'dia', casual: 'iye', formal: 'iye', meaning: 'Dia', partOfSpeech: 'pronoun' },
+    { idTerm: 'kita', casual: 'itah', formal: 'itah', meaning: 'Kita (falsafah Huma Betang)', partOfSpeech: 'pronoun' },
+    { idTerm: 'kami', casual: 'ikei', formal: 'ikei', meaning: 'Kami', partOfSpeech: 'pronoun' },
+    { idTerm: 'mereka', casual: 'ewen', formal: 'ewen', meaning: 'Mereka', partOfSpeech: 'pronoun' },
+    { idTerm: 'ini', casual: 'jetuh', formal: 'jetuh', aliases: ['tuh'], meaning: 'Ini', partOfSpeech: 'pronoun' },
+    { idTerm: 'itu', casual: 'jete', formal: 'jete', aliases: ['te'], meaning: 'Itu', partOfSpeech: 'pronoun' },
+    { idTerm: 'bapak', casual: 'bapa', formal: 'apa', meaning: 'Ayah / bapak', partOfSpeech: 'noun' },
+    { idTerm: 'ibu', casual: 'indang', formal: 'umai', aliases: ['umay'], meaning: 'Ibu', partOfSpeech: 'noun' },
+    { idTerm: 'anak', casual: 'anak', formal: 'anak', meaning: 'Anak', partOfSpeech: 'noun' },
+    { idTerm: 'saudara', casual: 'pahari', formal: 'pahari', meaning: 'Saudara', partOfSpeech: 'noun' },
+
+    // Kata Kerja Inti
+    { idTerm: 'makan', casual: 'kuman', formal: 'kuman', meaning: 'Makan', partOfSpeech: 'verb' },
+    { idTerm: 'minum', casual: 'mihup', formal: 'mihup', meaning: 'Minum', partOfSpeech: 'verb' },
+    { idTerm: 'tidur', casual: 'batiruh', formal: 'batiruh', meaning: 'Tidur', partOfSpeech: 'verb' },
+    { idTerm: 'pergi', casual: 'tulak', formal: 'tulak', meaning: 'Pergi / berangkat', partOfSpeech: 'verb' },
+    { idTerm: 'pulang', casual: 'buli', formal: 'buli', meaning: 'Pulang', partOfSpeech: 'verb' },
+    { idTerm: 'datang', casual: 'dumah', formal: 'dumah', meaning: 'Datang / tiba', partOfSpeech: 'verb' },
+    { idTerm: 'duduk', casual: 'munduk', formal: 'munduk', meaning: 'Duduk', partOfSpeech: 'verb' },
+    { idTerm: 'lihat', casual: 'mite', formal: 'mite', meaning: 'Melihat', partOfSpeech: 'verb' },
+    { idTerm: 'dengar', casual: 'mahining', formal: 'mahining', meaning: 'Mendengar', partOfSpeech: 'verb' },
+    { idTerm: 'bicara', casual: 'pander', formal: 'bapander', meaning: 'Berbicara', partOfSpeech: 'verb' },
+    { idTerm: 'beli', casual: 'mamili', formal: 'mamili', meaning: 'Membeli', partOfSpeech: 'verb' },
+    { idTerm: 'kerja', casual: 'bagawi', formal: 'bagawi', aliases: ['begawi'], meaning: 'Bekerja', partOfSpeech: 'verb' },
+    { idTerm: 'belajar', casual: 'balajar', formal: 'balajar', meaning: 'Belajar', partOfSpeech: 'verb' },
+    { idTerm: 'ingin', casual: 'handak', formal: 'handak', meaning: 'Ingin / hendak', partOfSpeech: 'verb' },
+    { idTerm: 'tahu', casual: 'tahu', formal: 'tahu', aliases: ['katawan'], meaning: 'Mengetahui', partOfSpeech: 'verb' },
+    { idTerm: 'ada', casual: 'tege', formal: 'tege', meaning: 'Ada', partOfSpeech: 'verb' },
+
+    // Kata Benda, Sifat & Partikel
+    { idTerm: 'rumah', casual: 'huma', formal: 'huma', meaning: 'Rumah', partOfSpeech: 'noun' },
+    { idTerm: 'nasi', casual: 'bari', formal: 'bari', meaning: 'Nasi', partOfSpeech: 'noun' },
+    { idTerm: 'air', casual: 'danum', formal: 'danum', meaning: 'Air', partOfSpeech: 'noun' },
+    { idTerm: 'pasar', casual: 'pasar', formal: 'pasar', meaning: 'Pasar', partOfSpeech: 'noun' },
+    { idTerm: 'uang', casual: 'duit', formal: 'duit', meaning: 'Uang', partOfSpeech: 'noun' },
+    { idTerm: 'baik', casual: 'bahalap', formal: 'bahalap', meaning: 'Baik / elok', partOfSpeech: 'adjective' },
+    { idTerm: 'sehat', casual: 'barigas', formal: 'barigas', meaning: 'Sehat / bugar', partOfSpeech: 'adjective' },
+    { idTerm: 'sakit', casual: 'haban', formal: 'haban', meaning: 'Sakit', partOfSpeech: 'adjective' },
+    { idTerm: 'besar', casual: 'hai', formal: 'hai', meaning: 'Besar', partOfSpeech: 'adjective' },
+    { idTerm: 'kecil', casual: 'kurik', formal: 'kurik', meaning: 'Kecil', partOfSpeech: 'adjective' },
+    { idTerm: 'baru', casual: 'bahanyi', formal: 'heta', aliases: ['baru'], meaning: 'Baru', partOfSpeech: 'adjective' },
+    { idTerm: 'lama', casual: 'lawas', formal: 'tahai', meaning: 'Lama', partOfSpeech: 'adjective' },
+    { idTerm: 'dekat', casual: 'tukep', formal: 'tukep', meaning: 'Dekat', partOfSpeech: 'adjective' },
+    { idTerm: 'jauh', casual: 'kejau', formal: 'kejau', meaning: 'Jauh', partOfSpeech: 'adjective' },
+    { idTerm: 'tidak', casual: 'dia', formal: 'dia', meaning: 'Tidak', partOfSpeech: 'particle' },
+    { idTerm: 'bukan', casual: 'beken', formal: 'beken', meaning: 'Bukan', partOfSpeech: 'particle' },
+    { idTerm: 'ya', casual: 'iyoh', formal: 'iyoh', meaning: 'Ya', partOfSpeech: 'particle' },
+    { idTerm: 'sudah', casual: 'jadi', formal: 'jadi', meaning: 'Sudah', partOfSpeech: 'particle' },
+    { idTerm: 'belum', casual: 'hindai', formal: 'hindai', meaning: 'Belum', partOfSpeech: 'particle' },
+    { idTerm: 'apa', casual: 'narai', formal: 'narai', meaning: 'Apa', partOfSpeech: 'question' },
+    { idTerm: 'siapa', casual: 'eweh', formal: 'eweh', meaning: 'Siapa', partOfSpeech: 'question' },
+    { idTerm: 'dimana', casual: 'kueh', formal: 'hong kueh', meaning: 'Di mana', partOfSpeech: 'question' },
+    { idTerm: 'di', casual: 'hong', formal: 'hong', meaning: 'Di / pada', partOfSpeech: 'particle' },
+    { idTerm: 'ke', casual: 'kan', formal: 'akan', meaning: 'Ke / kepada', partOfSpeech: 'particle' },
+    { idTerm: 'dan', casual: 'tuntang', formal: 'tuntang', meaning: 'Dan', partOfSpeech: 'particle' },
+    { idTerm: 'dengan', casual: 'hayak', formal: 'dengan', meaning: 'Dengan', partOfSpeech: 'particle' },
+    { idTerm: 'satu', casual: 'ije', formal: 'ije', meaning: 'Angka 1', partOfSpeech: 'number' },
+    { idTerm: 'dua', casual: 'due', formal: 'due', meaning: 'Angka 2', partOfSpeech: 'number' },
+    { idTerm: 'tiga', casual: 'telu', formal: 'telu', meaning: 'Angka 3', partOfSpeech: 'number' },
+  ],
+  parallel: [
+    { sourceLang: 'id', targetLang: 'nij', idText: 'Apa kabar saudara semua?', targetText: 'Narai kabar pahari samandiai?', context: 'Salam persaudaraan Huma Betang', domain: 'culture' },
+    { sourceLang: 'nij', targetLang: 'id', idText: 'Saya ingin minum air.', targetText: 'Aku handak mihup danum.', context: 'Percakapan harian Dayak Ngaju', domain: 'daily' },
+  ],
+};
+
