@@ -10,7 +10,7 @@ export const ngajuPack: RegionalLanguagePack = {
       'Bahasa komunikasi antarsuku (lingua franca) utama di Kalimantan Tengah sepanjang Daerah Aliran Sungai Kahayan, Kapuas, Katingan, dan Barito.',
     region: 'Kalimantan Tengah (Palangka Raya, Kapuas, Pulang Pisau, Katingan)',
     speakers: '1,1+ Juta Penutur',
-    preservationStatus: 'Aktif & Bahasa Pengantar Daerah Kalteng',
+    preservationStatus: 'Kamus draf (Tutur Sehari-hari) · menunggu validasi penutur',
     hasSpeechLevels: false,
     registerTerms: {
       casualLabel: 'Tutur Sehari-hari',

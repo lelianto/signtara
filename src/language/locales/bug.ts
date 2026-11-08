@@ -9,7 +9,7 @@ export const bugisPack: RegionalLanguagePack = {
     description: 'Dituturkan masyarakat Bugis di Sulawesi Selatan dengan tradisi kesantunan pangadereng dan falsafah Siri na Pacce.',
     region: 'Sulawesi Selatan (Bone, Wajo, Soppeng, Sidrap, Pinrang)',
     speakers: '5.0+ Juta Penutur',
-    preservationStatus: 'Kamus Lokal Terkurasi (Bicara Biasa & Bicaraomalomo/Halus)',
+    preservationStatus: 'Kamus draf (Bicara Biasa & Bicaraomalomo/Halus) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: 'Cappa (Akrab)',

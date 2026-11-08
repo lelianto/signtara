@@ -9,7 +9,7 @@ export const balinesePack: RegionalLanguagePack = {
     description: 'Bahasa kaya tradisi literasi lontar dan aksara di Pulau Bali dengan sistem anggah-ungguhing basa.',
     region: 'Bali & Lombok Barat',
     speakers: '3.3+ Juta Penutur',
-    preservationStatus: 'Kamus Lokal Terkurasi (Andap · Alus Sor · Alus Singgih)',
+    preservationStatus: 'Kamus draf (Andap · Alus Sor · Alus Singgih) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: 'Andap / Kepara (Sehari-hari)',
@@ -53,7 +53,7 @@ export const balinesePack: RegionalLanguagePack = {
 
     // Kata Ganti
     { idTerm: 'saya', casual: 'tiang', formal: 'titiang', aliases: ['icang'], meaning: 'Kata ganti orang pertama', partOfSpeech: 'pronoun' },
-    { idTerm: 'kamu', casual: 'cai', formal: 'ragane', honorific: 'ida', aliases: ['nyai'], meaning: 'Kata ganti orang kedua', partOfSpeech: 'pronoun' },
+    { idTerm: 'kamu', casual: 'cai', formal: 'ragane', aliases: ['nyai'], meaning: 'Kata ganti orang kedua', partOfSpeech: 'pronoun' },
     { idTerm: 'anda', casual: 'ragane', formal: 'ragane', honorific: 'ratu', meaning: 'Kata ganti orang kedua hormat', partOfSpeech: 'pronoun' },
     { idTerm: 'dia', casual: 'ia', formal: 'ipun', honorific: 'ida', meaning: 'Kata ganti orang ketiga', partOfSpeech: 'pronoun' },
     { idTerm: 'kami', casual: 'tiang ajak makejang', formal: 'titiang sareng sami', meaning: 'Kami', partOfSpeech: 'pronoun' },
@@ -67,7 +67,7 @@ export const balinesePack: RegionalLanguagePack = {
     { idTerm: 'bapak', casual: 'bapa', formal: 'bapa', honorific: 'aji', meaning: 'Ayah / Bapak', partOfSpeech: 'noun' },
     { idTerm: 'ibu', casual: 'meme', formal: 'meme', honorific: 'biang', meaning: 'Ibu', partOfSpeech: 'noun' },
     { idTerm: 'anak', casual: 'panak', formal: 'pianak', honorific: 'oka', meaning: 'Anak', partOfSpeech: 'noun' },
-    { idTerm: 'kakak', casual: 'beli', formal: 'raka', aliases: ['mbok'], meaning: 'Kakak', partOfSpeech: 'noun' },
+    { idTerm: 'kakak', casual: 'beli', formal: 'raka', aliases: ['mbok'], meaning: 'Kakak — beli (lk) / mbok (pr)', partOfSpeech: 'noun' },
     { idTerm: 'adik', casual: 'adi', formal: 'rai', meaning: 'Adik', partOfSpeech: 'noun' },
     { idTerm: 'kakek', casual: 'pekak', formal: 'kakiang', meaning: 'Kakek', partOfSpeech: 'noun' },
     { idTerm: 'nenek', casual: 'dadong', formal: 'niang', meaning: 'Nenek', partOfSpeech: 'noun' },

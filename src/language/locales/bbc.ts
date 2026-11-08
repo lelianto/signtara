@@ -9,7 +9,7 @@ export const batakTobaPack: RegionalLanguagePack = {
     description: 'Dituturkan di kawasan Danau Toba, Tapanuli Utara, Samosir, dan Humbang Hasundutan.',
     region: 'Sumatera Utara (Danau Toba & Tapanuli)',
     speakers: '2.0+ Juta Penutur',
-    preservationStatus: 'Kamus Lokal Terkurasi (Akrab & Sopan Adat)',
+    preservationStatus: 'Kamus draf (Akrab & Sopan Adat) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: 'Sehari-hari',

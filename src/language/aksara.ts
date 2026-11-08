@@ -1,13 +1,15 @@
 import type {
   AksaraItem,
   AksaraScript,
+  LexiconEntry,
   RegionalLanguageCode,
+  Register,
   TransliterateDirection,
 } from './types';
 
 export const AKSARA_LABELS: Record<AksaraScript, string> = {
   JAVANESE: 'Aksara Jawa (Hanacaraka)',
-  SUNDANESE: 'Aksara Sunda (Ngangalagena)',
+  SUNDANESE: 'Aksara Sunda Baku',
   BALINESE: 'Aksara Bali (Carakan)',
 };
 
@@ -27,6 +29,9 @@ export function supportsNativeAksara(code: RegionalLanguageCode): boolean {
 
 /**
  * Deterministic Javanese Script Transliteration Engine (Hanacaraka Unicode).
+ * Note: Latin orthography does not distinguish é/è from ê (pepet), so algorithmic
+ * transliteration never guesses pepet by heuristic rule; verified pepet spellings
+ * should be supplied via `LexiconEntry.aksara` or explicit `wordOverrides`.
  */
 export function latinToJavaneseScriptLocal(text: string): string {
   if (!text) return '';
@@ -70,7 +75,7 @@ export function latinToJavaneseScriptLocal(text: string): string {
 
   const words = text.trim().split(/\s+/);
   if (words.length > 1) {
-    return words.map(w => latinToJavaneseScriptLocal(w)).join(' ');
+    return words.map((w) => latinToJavaneseScriptLocal(w)).join(' ');
   }
 
   const textLower = text.toLowerCase().replace(/[?.!,]+$/g, '').trim();
@@ -109,6 +114,7 @@ export function latinToJavaneseScriptLocal(text: string): string {
     const remaining = textLower.slice(i);
     let matched = false;
     for (const len of [3, 2, 1]) {
+      if (remaining.length < len) continue;
       const sub = remaining.slice(0, len);
       if (charMap[sub]) {
         result += charMap[sub];
@@ -125,8 +131,79 @@ export function latinToJavaneseScriptLocal(text: string): string {
   return result;
 }
 
+// Programmatically generated Aksara Sunda Baku syllable map (consonants × vowels, including 'eu', 'é', and 'e')
+const SUNDANESE_CONSONANTS: ReadonlyArray<readonly [string, string]> = [
+  ['ng', 'ᮍ'],
+  ['ny', 'ᮑ'],
+  ['kh', 'ᮮ'],
+  ['sy', 'ᮯ'],
+  ['k', 'ᮊ'],
+  ['g', 'ᮌ'],
+  ['c', 'ᮎ'],
+  ['j', 'ᮏ'],
+  ['t', 'ᮒ'],
+  ['d', 'ᮓ'],
+  ['n', 'ᮔ'],
+  ['p', 'ᮕ'],
+  ['b', 'ᮘ'],
+  ['m', 'ᮙ'],
+  ['y', 'ᮚ'],
+  ['r', 'ᮛ'],
+  ['l', 'ᮜ'],
+  ['w', 'ᮝ'],
+  ['s', 'ᮞ'],
+  ['h', 'ᮠ'],
+  ['f', 'ᮖ'],
+  ['v', 'ᮗ'],
+  ['z', 'ᮐ'],
+  ['q', 'ᮊ'],
+];
+
+const SUNDANESE_VOWEL_SIGNS: ReadonlyArray<readonly [string, string]> = [
+  ['eu', 'ᮩ'], // paneuleung
+  ['a', ''],   // inherent vowel
+  ['i', 'ᮤ'],  // panghulu
+  ['u', 'ᮥ'],  // panyuku
+  ['é', 'ᮦ'],  // panéléng
+  ['è', 'ᮦ'],  // panéléng (grave variant)
+  ['e', 'ᮨ'],  // pamepet (unmarked e)
+  ['ê', 'ᮨ'],  // pamepet
+  ['o', 'ᮧ'],  // panolong
+];
+
+const SUNDANESE_CHAR_MAP: Record<string, string> = (() => {
+  const map: Record<string, string> = {
+    eu: 'ᮉ',
+    a: 'ᮃ',
+    i: 'ᮄ',
+    u: 'ᮅ',
+    é: 'ᮆ',
+    è: 'ᮆ',
+    e: 'ᮈ',
+    ê: 'ᮈ',
+    o: 'ᮇ',
+  };
+
+  for (const [cons, glyph] of SUNDANESE_CONSONANTS) {
+    for (const [vowel, sign] of SUNDANESE_VOWEL_SIGNS) {
+      map[`${cons}${vowel}`] = `${glyph}${sign}`;
+    }
+    if (cons === 'ng') {
+      map.ng = 'ᮀ';
+    } else if (cons === 'r') {
+      map.r = 'ᮁ';
+    } else if (cons === 'h') {
+      map.h = 'ᮂ';
+    } else {
+      map[cons] = `${glyph}᮪`;
+    }
+  }
+
+  return map;
+})();
+
 /**
- * Deterministic Sundanese Script Transliteration Engine (Ngangalagena Unicode).
+ * Deterministic Sundanese Script Transliteration Engine (Aksara Sunda Baku Unicode).
  */
 export function latinToSundaneseScriptLocal(text: string): string {
   if (!text) return '';
@@ -141,48 +218,26 @@ export function latinToSundaneseScriptLocal(text: string): string {
     bhasantara: 'ᮘ᮪ᮠᮞᮔ᮪ᮒᮛ',
   };
 
-  const words = text.trim().split(/\s+/);
+  const normalized = text.normalize('NFC');
+  const words = normalized.trim().split(/\s+/);
   if (words.length > 1) {
-    return words.map(w => latinToSundaneseScriptLocal(w)).join(' ');
+    return words.map((w) => latinToSundaneseScriptLocal(w)).join(' ');
   }
 
-  const textLower = text.toLowerCase().replace(/[?.!,]+$/g, '').trim();
+  const textLower = normalized.toLowerCase().replace(/[?.!,]+$/g, '').trim();
   if (wordOverrides[textLower]) return wordOverrides[textLower];
-
-  const charMap: Record<string, string> = {
-    nga: 'ᮍ', nya: 'ᮑ',
-    ngi: 'ᮍᮤ', nyi: 'ᮑᮤ',
-    ngu: 'ᮍᮥ', nyu: 'ᮑᮥ',
-    nge: 'ᮍᮨ', nye: 'ᮑᮨ',
-    ngo: 'ᮍᮧ', nyo: 'ᮑᮧ',
-    ka: 'ᮊ', ga: 'ᮌ', ca: 'ᮎ', ja: 'ᮏ',
-    ta: 'ᮒ', da: 'ᮓ', na: 'ᮔ', pa: 'ᮕ',
-    ba: 'ᮘ', ma: 'ᮙ', ya: 'ᮚ', ra: 'ᮛ', la: 'ᮜ',
-    wa: 'ᮝ', sa: 'ᮞ', ha: 'ᮠ', fa: 'ᮖ', za: 'ᮐ',
-    ki: 'ᮊᮤ', gi: 'ᮌᮤ', ci: 'ᮎᮤ', ji: 'ᮏᮤ', ti: 'ᮒᮤ', di: 'ᮓᮤ', ni: 'ᮔᮤ', pi: 'ᮕᮤ',
-    bi: 'ᮘᮤ', mi: 'ᮙᮤ', yi: 'ᮚᮤ', ri: 'ᮛᮤ', li: 'ᮜᮤ', wi: 'ᮝᮤ', si: 'ᮞᮤ', hi: 'ᮠᮤ',
-    ku: 'ᮊᮥ', gu: 'ᮌᮥ', cu: 'ᮎᮥ', ju: 'ᮏᮥ', tu: 'ᮒᮥ', du: 'ᮓᮥ', nu: 'ᮔᮥ', pu: 'ᮕᮥ',
-    bu: 'ᮘᮥ', mu: 'ᮙᮥ', yu: 'ᮚᮥ', ru: 'ᮛᮥ', lu: 'ᮜᮥ', wu: 'ᮝᮥ', su: 'ᮞᮥ', hu: 'ᮠᮥ',
-    ke: 'ᮊᮨ', ge: 'ᮌᮨ', ce: 'ᮎᮨ', je: 'ᮏᮨ', te: 'ᮒᮨ', de: 'ᮓᮨ', ne: 'ᮔᮨ', pe: 'ᮕᮨ',
-    be: 'ᮘᮨ', me: 'ᮙᮨ', ye: 'ᮚᮨ', re: 'ᮛᮨ', le: 'ᮜᮨ', we: 'ᮝᮨ', se: 'ᮞᮨ', he: 'ᮠᮨ',
-    ko: 'ᮊᮧ', go: 'ᮌᮧ', co: 'ᮎᮧ', jo: 'ᮏᮧ', to: 'ᮒᮧ', do: 'ᮓᮧ', no: 'ᮔᮧ', po: 'ᮕᮧ',
-    bo: 'ᮘᮧ', mo: 'ᮙᮧ', yo: 'ᮚᮧ', ro: 'ᮛᮧ', lo: 'ᮜᮧ', wo: 'ᮝᮧ', so: 'ᮞᮧ', ho: 'ᮠᮧ',
-    a: 'ᮃ', i: 'ᮄ', u: 'ᮅ', e: 'ᮆ', o: 'ᮇ',
-    ng: 'ᮀ', r: 'ᮁ', h: 'ᮂ',
-    k: 'ᮊ᮪', g: 'ᮌ᮪', t: 'ᮒ᮪', d: 'ᮓ᮪', n: 'ᮔ᮪',
-    p: 'ᮕ᮪', b: 'ᮘ᮪', m: 'ᮙ᮪', y: 'ᮚ᮪',
-    l: 'ᮜ᮪', w: 'ᮝ᮪', s: 'ᮞ᮪', c: 'ᮎ᮪', j: 'ᮏ᮪',
-  };
 
   let result = '';
   let i = 0;
   while (i < textLower.length) {
     const remaining = textLower.slice(i);
     let matched = false;
-    for (const len of [3, 2, 1]) {
+    // Greedy longest-match 4 -> 3 -> 2 -> 1 so 4-letter syllables ('ngeu', 'nyeu') match cleanly
+    for (const len of [4, 3, 2, 1]) {
+      if (remaining.length < len) continue;
       const sub = remaining.slice(0, len);
-      if (charMap[sub]) {
-        result += charMap[sub];
+      if (SUNDANESE_CHAR_MAP[sub]) {
+        result += SUNDANESE_CHAR_MAP[sub];
         i += len;
         matched = true;
         break;
@@ -216,7 +271,7 @@ export function latinToBalineseScriptLocal(text: string): string {
 
   const words = text.trim().split(/\s+/);
   if (words.length > 1) {
-    return words.map(w => latinToBalineseScriptLocal(w)).join(' ');
+    return words.map((w) => latinToBalineseScriptLocal(w)).join(' ');
   }
 
   const textLower = text.toLowerCase().replace(/[?.!,]+$/g, '').trim();
@@ -256,6 +311,7 @@ export function latinToBalineseScriptLocal(text: string): string {
     const remaining = textLower.slice(i);
     let matched = false;
     for (const len of [3, 2, 1]) {
+      if (remaining.length < len) continue;
       const sub = remaining.slice(0, len);
       if (charMap[sub]) {
         result += charMap[sub];
@@ -305,8 +361,9 @@ export function aksaraToLatinLocal(text: string): string {
     'ᮊ': 'ka', 'ᮌ': 'ga', 'ᮍ': 'nga', 'ᮎ': 'ca', 'ᮏ': 'ja',
     'ᮑ': 'nya', 'ᮒ': 'ta', 'ᮓ': 'da', 'ᮔ': 'na', 'ᮕ': 'pa',
     'ᮘ': 'ba', 'ᮙ': 'ma', 'ᮚ': 'ya', 'ᮛ': 'ra', 'ᮜ': 'la',
-    'ᮝ': 'wa', 'ᮞ': 'sa', 'ᮠ': 'ha', 'ᮖ': 'fa', 'ᮐ': 'za',
-    'ᮃ': 'a', 'ᮄ': 'i', 'ᮅ': 'u', 'ᮆ': 'e', 'ᮇ': 'o',
+    'ᮝ': 'wa', 'ᮞ': 'sa', 'ᮠ': 'ha', 'ᮖ': 'fa', 'ᮗ': 'va', 'ᮐ': 'za',
+    'ᮮ': 'kha', 'ᮯ': 'sya',
+    'ᮃ': 'a', 'ᮄ': 'i', 'ᮅ': 'u', 'ᮆ': 'é', 'ᮈ': 'e', 'ᮉ': 'eu', 'ᮇ': 'o',
     'ᮀ': 'ng', 'ᮁ': 'r', 'ᮂ': 'h',
     // Bali
     'ᬳ': 'ha', 'ᬦ': 'na', 'ᬘ': 'ca', 'ᬭ': 'ra', 'ᬓ': 'ka',
@@ -319,7 +376,7 @@ export function aksaraToLatinLocal(text: string): string {
 
   const vowelMod: Record<string, string> = {
     'ꦶ': 'i', 'ꦸ': 'u', 'ꦺ': 'e', 'ꦼ': 'e',
-    'ᮤ': 'i', 'ᮥ': 'u', 'ᮨ': 'e', 'ᮦ': 'e', 'ᮧ': 'o',
+    'ᮤ': 'i', 'ᮥ': 'u', 'ᮨ': 'e', 'ᮦ': 'é', 'ᮩ': 'eu', 'ᮧ': 'o',
     'ᬶ': 'i', 'ᬸ': 'u', 'ᬾ': 'e', 'ᭀ': 'o',
   };
   const virama = new Set(['꧀', '᮪', '᭄']);
@@ -358,12 +415,90 @@ export function aksaraToLatinLocal(text: string): string {
 export function transliterateToAksara(
   text: string,
   script: AksaraScript,
-  direction: TransliterateDirection = 'LATIN_TO_AKSARA'
+  direction: TransliterateDirection = 'LATIN_TO_AKSARA',
+  entryOverride?: Pick<LexiconEntry, 'aksara'> | null
 ): string {
   if (direction === 'AKSARA_TO_LATIN') return aksaraToLatinLocal(text);
+  if (entryOverride?.aksara && entryOverride.aksara.trim()) {
+    return entryOverride.aksara.trim();
+  }
   if (script === 'SUNDANESE') return latinToSundaneseScriptLocal(text);
   if (script === 'BALINESE') return latinToBalineseScriptLocal(text);
   return latinToJavaneseScriptLocal(text);
+}
+
+export interface AksaraTransliterationResult {
+  text: string;
+  aksaraAuto: boolean;
+}
+
+/**
+ * Transliterates Latin text to Aksara using explicit `LexiconEntry.aksara` overrides
+ * when available, falling back to the deterministic syllable engine otherwise, and
+ * tagging whether algorithmic fallback was used (`aksaraAuto`).
+ */
+export function transliterateWithMeta(
+  text: string,
+  script: AksaraScript,
+  options?: {
+    entryAksara?: string;
+    lexiconOverrides?: ReadonlyMap<string, string> | Record<string, string>;
+  }
+): AksaraTransliterationResult {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed === '—') {
+    return { text: trimmed, aksaraAuto: false };
+  }
+
+  if (options?.entryAksara && options.entryAksara.trim()) {
+    return { text: options.entryAksara.trim(), aksaraAuto: false };
+  }
+
+  const overrides = options?.lexiconOverrides;
+  if (overrides) {
+    const lookup = (key: string): string | undefined =>
+      overrides instanceof Map
+        ? overrides.get(key)
+        : Object.prototype.hasOwnProperty.call(overrides, key)
+        ? (overrides as Record<string, string>)[key]
+        : undefined;
+
+    const fullKey = trimmed.toLowerCase().replace(/[?.!,;:]+$/g, '');
+    const fullHit = lookup(fullKey);
+    if (fullHit && fullHit.trim()) {
+      return { text: fullHit.trim(), aksaraAuto: false };
+    }
+
+    const words = trimmed.split(/\s+/);
+    let anyAuto = false;
+    const parts = words.map((w) => {
+      const wKey = w.toLowerCase().replace(/[?.!,;:]+$/g, '');
+      const hit = wKey ? lookup(wKey) : undefined;
+      if (hit && hit.trim()) {
+        return hit.trim();
+      }
+      anyAuto = true;
+      return transliterateToAksara(w, script);
+    });
+    return { text: parts.join(' '), aksaraAuto: anyAuto };
+  }
+
+  return {
+    text: transliterateToAksara(trimmed, script),
+    aksaraAuto: true,
+  };
+}
+
+export function transliterateLexiconEntry(
+  entry: Pick<LexiconEntry, 'casual' | 'formal' | 'aksara'>,
+  script: AksaraScript,
+  register: Register = 'ngoko'
+): AksaraTransliterationResult {
+  const targetLatin =
+    register === 'krama' && entry.formal ? entry.formal : entry.casual;
+  return transliterateWithMeta(targetLatin, script, {
+    entryAksara: entry.aksara,
+  });
 }
 
 export const aksaraGuideData: Record<AksaraScript, Record<string, AksaraItem[]>> = {
@@ -396,11 +531,16 @@ export const aksaraGuideData: Record<AksaraScript, Record<string, AksaraItem[]>>
       { glyph: 'ᮝ', latin: 'wa' }, { glyph: 'ᮞ', latin: 'sa' }, { glyph: 'ᮠ', latin: 'ha' }, { glyph: 'ᮖ', latin: 'fa' }, { glyph: 'ᮐ', latin: 'za' },
     ],
     Rarangken: [
-      { glyph: 'ᮤ', latin: 'Panghulu (i)' }, { glyph: 'ᮥ', latin: 'Panyuku (u)' }, { glyph: '᮪', latin: 'Pamaeh' },
+      { glyph: 'ᮤ', latin: 'Panghulu (i)' }, { glyph: 'ᮥ', latin: 'Panyuku (u)' },
+      { glyph: 'ᮦ', latin: 'Panéléng (é)' }, { glyph: 'ᮨ', latin: 'Pamepet (e)' },
+      { glyph: 'ᮩ', latin: 'Paneuleung (eu)' }, { glyph: 'ᮧ', latin: 'Panolong (o)' },
+      { glyph: 'ᮀ', latin: 'Panyecek (-ng)' }, { glyph: 'ᮁ', latin: 'Panglayar (-r)' },
+      { glyph: 'ᮂ', latin: 'Pangwisad (-h)' }, { glyph: '᮪', latin: 'Pamaéh' },
     ],
     Swara: [
       { glyph: 'ᮃ', latin: 'A' }, { glyph: 'ᮄ', latin: 'I' }, { glyph: 'ᮅ', latin: 'U' },
-      { glyph: 'ᮆ', latin: 'E' }, { glyph: 'ᮇ', latin: 'O' },
+      { glyph: 'ᮆ', latin: 'É' }, { glyph: 'ᮈ', latin: 'E' }, { glyph: 'ᮉ', latin: 'Eu' },
+      { glyph: 'ᮇ', latin: 'O' },
     ],
   },
   BALINESE: {
@@ -421,4 +561,3 @@ export const aksaraGuideData: Record<AksaraScript, Record<string, AksaraItem[]>>
     ],
   },
 };
-

@@ -27,7 +27,8 @@ export type PartOfSpeech =
   | 'number'
   | 'time'
   | 'question'
-  | 'particle';
+  | 'particle'
+  | 'unknown';
 
 export interface RegionalDialect {
   name: string;
@@ -69,6 +70,9 @@ export interface LexiconEntry {
   formal: string;
   honorific?: string;
   aliases?: string[];
+  aksara?: string;
+  source?: 'curated' | 'nusax-auto';
+  verified?: boolean;
   meaning: string;
   partOfSpeech: PartOfSpeech;
 }
@@ -101,6 +105,9 @@ export interface BhasantaraGlossaryItem {
   casual: string;
   formal: string;
   honorific?: string;
+  aksara?: string;
+  source?: 'curated' | 'nusax-auto';
+  verified?: boolean;
   meaning: string;
   partOfSpeech: PartOfSpeech;
 }
@@ -141,11 +148,13 @@ export interface SpelledTranslationResult {
   languageName: string;
   nativeName: string;
   registerLabel: string;
+  registerFallback?: boolean;
   hasSpeechLevels: boolean;
   hasNativeAksara: boolean;
   nativeScript?: AksaraScript;
   aksaraText: string;
   nativeAksaraText: string | null;
+  aksaraAuto: boolean;
   aksaraLabel: string;
   matchedMeaning?: string;
   untranslatedTokens: string[];

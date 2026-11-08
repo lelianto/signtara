@@ -9,7 +9,7 @@ export const banjarPack: RegionalLanguagePack = {
     description: 'Bahasa pergaulan utama Kalimantan Selatan dan pesisir Kalimantan dengan tata krama Unda/Ikam (akrab) dan Ulun/Pian (sopan).',
     region: 'Kalimantan Selatan, Tengah & Timur',
     speakers: '4.5+ Juta Penutur',
-    preservationStatus: 'Kamus Lokal Terkurasi (Unda-Ikam & Ulun-Pian)',
+    preservationStatus: 'Kamus draf (Unda-Ikam & Ulun-Pian) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: 'Akrab (Unda / Ikam)',

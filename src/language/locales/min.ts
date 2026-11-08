@@ -9,7 +9,7 @@ export const minangkabauPack: RegionalLanguagePack = {
     description: 'Dituturkan di Sumatera Barat dengan tradisi kato nan ampek (mendaki, manurun, malereang, mandata).',
     region: 'Sumatera Barat & Rantau Minang',
     speakers: '6.5+ Juta Penutur',
-    preservationStatus: 'Kamus Lokal Terkurasi (Mandata & Kato Mandaki)',
+    preservationStatus: 'Kamus draf (Mandata & Kato Mandaki) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: 'Mandata (Akrab)',

@@ -936,6 +936,11 @@ function App() {
                                                         {spelledResult.matchedMeaning && !/NusaX/i.test(spelledResult.matchedMeaning) && (
                                                             <p className="ix-note">{spelledResult.matchedMeaning}</p>
                                                         )}
+                                                        {spelledResult.registerFallback && (
+                                                            <p className="ix-note ix-note--warn" data-testid="register-fallback-note">
+                                                                Bentuk halus belum tersedia — menampilkan bentuk sehari-hari.
+                                                            </p>
+                                                        )}
                                                         {spelledResult.honorificVariant && (
                                                             <p className="ix-note ix-note--honor">
                                                                 {honorificTerm.name}
@@ -979,7 +984,11 @@ function App() {
                                                 >
                                                     {spelledResult.nativeAksaraText || '—'}
                                                 </p>
-                                                <small className="ix-fine">Transliterasi otomatis — belum divalidasi ahli aksara.</small>
+                                                <small className="ix-fine">
+                                                    {spelledResult.aksaraAuto === false
+                                                        ? 'Ejaan aksara kamus — belum divalidasi ahli aksara.'
+                                                        : 'Transliterasi otomatis — belum divalidasi ahli aksara.'}
+                                                </small>
                                             </div>
                                         ) : (
                                             language !== 'id' && (
@@ -1249,7 +1258,8 @@ function App() {
                                     <div className="ix-entry-grid">
                                         {filteredGlossary.slice(0, dictLimit).map((g, i) => {
                                             const lMeta = regionalLanguages.find((l) => l.code === g.targetLang);
-                                            const fromCorpus = /NusaX/i.test(g.meaning);
+                                            const fromCorpus = g.source === 'nusax-auto';
+                                            const spoken = g.formal || g.casual;
                                             return (
                                                 <article key={`${g.targetLang}-${g.idTerm}-${i}`} className="ix-entry">
                                                     <div className="ix-entry-head">
@@ -1257,7 +1267,7 @@ function App() {
                                                         <span className={`ix-tag ${fromCorpus ? 'ix-tag--corpus' : 'ix-tag--draft'}`}>
                                                             {fromCorpus ? 'Korpus otomatis' : 'Draf'}
                                                         </span>
-                                                        <button type="button" className="ix-icon-btn ix-icon-btn--sm" onClick={() => speakText(g.formal)} aria-label={`Dengarkan ${g.formal}`}>
+                                                        <button type="button" className="ix-icon-btn ix-icon-btn--sm" onClick={() => speakText(spoken)} aria-label={`Dengarkan ${spoken}`}>
                                                             <Volume2 size={15} strokeWidth={1.8} />
                                                         </button>
                                                     </div>
@@ -1267,10 +1277,10 @@ function App() {
                                                         {g.formal && g.formal !== g.casual && <div><dt>Halus</dt><dd>{g.formal}</dd></div>}
                                                         {g.honorific && g.honorific !== g.formal && <div><dt>Hormat</dt><dd>{g.honorific}</dd></div>}
                                                     </dl>
-                                                    {!fromCorpus && <p className="ix-entry-meta">{g.meaning}</p>}
+                                                    {g.meaning && <p className="ix-entry-meta">{g.meaning}</p>}
                                                     {lMeta?.defaultScript && (
                                                         <p className={`ix-entry-aksara ix-aksara-glyph--${lMeta.defaultScript}`} lang={SCRIPT_LANG_ATTR[lMeta.defaultScript]}>
-                                                            {transliterateToAksara(g.formal, lMeta.defaultScript)}
+                                                            {g.aksara || transliterateToAksara(spoken, lMeta.defaultScript)}
                                                         </p>
                                                     )}
                                                 </article>
@@ -1411,7 +1421,7 @@ function App() {
                                         onChange={(e) => setAksaraScript(e.target.value as AksaraScript)}
                                     >
                                         <option value="JAVANESE">Aksara Jawa (Hanacaraka)</option>
-                                        <option value="SUNDANESE">Aksara Sunda (Ngangalagena)</option>
+                                        <option value="SUNDANESE">Aksara Sunda Baku</option>
                                         <option value="BALINESE">Aksara Bali (Carakan)</option>
                                     </select>
                                 </label>

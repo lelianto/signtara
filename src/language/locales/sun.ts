@@ -9,7 +9,7 @@ export const sundanesePack: RegionalLanguagePack = {
     description: 'Dituturkan di Jawa Barat dan Banten dengan tata krama undak-usuk basa (Loma & Lemes).',
     region: 'Jawa Barat & Banten',
     speakers: '42+ Juta Penutur',
-    preservationStatus: 'Kamus Lokal Terkurasi (Loma · Lemes · Lemes Luhur)',
+    preservationStatus: 'Kamus draf (Loma · Lemes · Lemes Luhur) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: 'Loma (Akrab / Sehari-hari)',
@@ -19,7 +19,7 @@ export const sundanesePack: RegionalLanguagePack = {
     defaultScript: 'SUNDANESE',
     dialects: [
       { name: 'Sunda Priangan', region: 'Bandung, Garut, Tasikmalaya', description: 'Ragam standar sastra dengan undak-usuk basa halus.' },
-      { name: 'Sunda Banten', region: 'Serang & Pandeglang', description: 'Ragam Sunda arkais tanpa tingkatan lemes yang kompleks.' },
+      { name: 'Sunda Banten', region: 'Serang & Pandeglang', description: 'Ragam Sunda dengan sistem undak-usuk yang lebih sederhana dan egaliter.' },
     ],
   },
   possessives: {
@@ -95,10 +95,10 @@ export const sundanesePack: RegionalLanguagePack = {
     { idTerm: 'duduk', casual: 'diuk', formal: 'diuk', honorific: 'calik', meaning: 'Duduk', partOfSpeech: 'verb' },
     { idTerm: 'berdiri', casual: 'nangtung', formal: 'nangtung', honorific: 'ngadeg', meaning: 'Berdiri', partOfSpeech: 'verb' },
     { idTerm: 'jalan', casual: 'leumpang', formal: 'mapah', honorific: 'mapah', meaning: 'Berjalan', partOfSpeech: 'verb' },
-    { idTerm: 'lihat', casual: 'ningali', formal: 'ningal', honorific: 'ningali', aliases: ['nenjo'], meaning: 'Melihat', partOfSpeech: 'verb' },
-    { idTerm: 'dengar', casual: 'ngadenge', formal: 'nguping', honorific: 'ngadangukeun', meaning: 'Mendengar', partOfSpeech: 'verb' },
-    { idTerm: 'bicara', casual: 'ngomong', formal: 'nyanggem', honorific: 'nyarios', meaning: 'Berbicara', partOfSpeech: 'verb' },
-    { idTerm: 'berkata', casual: 'nyarita', formal: 'nyanggem', honorific: 'nyarios', meaning: 'Berkata', partOfSpeech: 'verb' },
+    { idTerm: 'lihat', casual: 'nempo', formal: 'ningali', honorific: 'ningali', aliases: ['nenjo'], meaning: 'Melihat', partOfSpeech: 'verb' },
+    { idTerm: 'dengar', casual: 'ngadenge', formal: 'ngadangu', honorific: 'ngadangukeun', meaning: 'Mendengar', partOfSpeech: 'verb' },
+    { idTerm: 'bicara', casual: 'ngomong', formal: 'matur', honorific: 'nyarios', meaning: 'Berbicara', partOfSpeech: 'verb' },
+    { idTerm: 'berkata', casual: 'nyarita', formal: 'matur', honorific: 'nyarios', meaning: 'Berkata', partOfSpeech: 'verb' },
     { idTerm: 'tanya', casual: 'nanya', formal: 'naros', honorific: 'mariksa', meaning: 'Bertanya', partOfSpeech: 'verb' },
     { idTerm: 'jawab', casual: 'ngajawab', formal: 'ngawaler', meaning: 'Menjawab', partOfSpeech: 'verb' },
     { idTerm: 'beri', casual: 'mere', formal: 'masihan', honorific: 'maparin', meaning: 'Memberi', partOfSpeech: 'verb' },

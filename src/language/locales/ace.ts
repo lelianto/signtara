@@ -9,7 +9,7 @@ export const acehPack: RegionalLanguagePack = {
     description: 'Bahasa masyarakat Aceh di ujung utara Sumatera dengan pembedaan tutur akrab dan hormat (ulôn/droëneuh).',
     region: 'Provinsi Aceh',
     speakers: '3.5+ Juta Penutur',
-    preservationStatus: 'Kamus Lokal Terkurasi (Akrab & Sopan/Hormat)',
+    preservationStatus: 'Kamus draf (Akrab & Sopan/Hormat) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: 'Biasa (Akrab)',

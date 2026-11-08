@@ -141,7 +141,7 @@ describe('missing-hand recovery',()=>{
  });
 });
 
-import{regionalLanguages,bhasantaraGlossary,LOCALE_PACKS,translateText,translateSpelledText,latinToJavaneseScriptLocal,latinToSundaneseScriptLocal,latinToBalineseScriptLocal,aksaraToLatinLocal,detectRegionalLanguageLocal,analyzeCulturalLiteracy,suggestWords,aksaraGuideData,supportsNativeAksara}from'../src/language';
+import{regionalLanguages,bhasantaraGlossary,LOCALE_PACKS,LOCALE_MAP,RAW_PACKS,enrichPackWithNusaX,NUSAX_COMMON_BLOCKLIST,NUSAX_LANG_BLOCKLIST,AKSARA_LABELS,translateText,translateSpelledText,latinToJavaneseScriptLocal,latinToSundaneseScriptLocal,latinToBalineseScriptLocal,aksaraToLatinLocal,transliterateWithMeta,transliterateLexiconEntry,detectRegionalLanguageLocal,analyzeCulturalLiteracy,suggestWords,aksaraGuideData,supportsNativeAksara}from'../src/language';
 describe('Bhasantara regional languages and Aksara integration',()=>{
  it('provides 9 Nusantara languages and translates spelled text across registers',()=>{
   expect(regionalLanguages.length).toBeGreaterThanOrEqual(9);
@@ -188,12 +188,24 @@ describe('Bhasantara regional languages and Aksara integration',()=>{
     expect(entry.casual).toBe(entry.casual.trim());
     expect(entry.formal).toBe(entry.formal.trim());
     expect(entry.casual.length).toBeGreaterThan(0);
-    expect(entry.formal.length).toBeGreaterThan(0);
-    expect(entry.meaning.trim().length).toBeGreaterThan(0);
+    expect(entry.aksara).toBeUndefined();
+    if(entry.source==='nusax-auto'){
+     expect(entry.formal).toBe('');
+     expect(entry.meaning).toBe('');
+     expect(entry.verified).toBe(false);
+     expect(entry.partOfSpeech).toBe('unknown');
+    }else{
+     expect(entry.formal.length).toBeGreaterThan(0);
+     expect(entry.meaning.trim().length).toBeGreaterThan(0);
+    }
    }
    if(pack.meta.code!=='id'){
     const meta=regionalLanguages.find(l=>l.code===pack.meta.code)!;
-    expect(meta.entriesCount).toBe(`${pack.lexicon.length} kosakata · ${(pack.parallel??[]).length} kalimat`);
+    const coreCount=pack.lexicon.filter(e=>e.source!=='nusax-auto').length;
+    const autoCount=pack.lexicon.filter(e=>e.source==='nusax-auto').length;
+    expect(meta.entriesCount).toBe(`${coreCount} entri inti · ${autoCount} entri korpus otomatis`);
+    expect(meta.preservationStatus).toContain('Kamus draf');
+    expect(meta.preservationStatus).toContain('menunggu validasi penutur');
    }
   }
  });
@@ -258,5 +270,133 @@ describe('Bhasantara regional languages and Aksara integration',()=>{
   expect(partial.translatedText.toLowerCase()).toBe('aku mangan pizza');
   expect(partial.untranslatedTokens).toEqual(['pizza']);
   expect(partial.coverage).toBeCloseTo(0.67,2);
+ });
+ it('supports Sundanese eu/é/e vowels with 4->1 matching, lexicon aksara overrides, and Javanese wordOverrides regressions',()=>{
+  expect(AKSARA_LABELS.SUNDANESE).toBe('Aksara Sunda Baku');
+  expect(latinToSundaneseScriptLocal('teu')).toBe('ᮒᮩ');
+  expect(latinToSundaneseScriptLocal('leumpang')).toContain('ᮜᮩ');
+  expect(latinToSundaneseScriptLocal('ngeunah')).toBe('ᮍᮩᮔᮂ');
+  expect(latinToSundaneseScriptLocal('nyeuri')).toBe('ᮑᮩᮛᮤ');
+  expect(latinToSundaneseScriptLocal('euweuh')).toBe('ᮉᮝᮩᮂ');
+  expect(latinToSundaneseScriptLocal('éta')).toBe('ᮆᮒ');
+  expect(latinToSundaneseScriptLocal('ké')).toBe('ᮊᮦ');
+  expect(latinToSundaneseScriptLocal('ke')).toBe('ᮊᮨ');
+  expect(latinToSundaneseScriptLocal('emas')).toBe('ᮈᮙᮞ᮪');
+
+  const withOverride=transliterateLexiconEntry({casual:'sega',formal:'sekul',aksara:'ꦱꦼꦒ'},'JAVANESE','ngoko');
+  expect(withOverride).toEqual({text:'ꦱꦼꦒ',aksaraAuto:false});
+  const withoutOverride=transliterateLexiconEntry({casual:'sega',formal:'sekul'},'JAVANESE','ngoko');
+  expect(withoutOverride).toEqual({text:'ꦱꦺꦒ',aksaraAuto:true});
+  const sentenceOverride=transliterateWithMeta('aku sega','JAVANESE',{lexiconOverrides:{aku:'ꦲꦏꦸ',sega:'ꦱꦼꦒ'}});
+  expect(sentenceOverride).toEqual({text:'ꦲꦏꦸ ꦱꦼꦒ',aksaraAuto:false});
+  const mixedOverride=transliterateWithMeta('aku mangan sega','JAVANESE',{lexiconOverrides:{sega:'ꦱꦼꦒ'}});
+  expect(mixedOverride).toEqual({text:'ꦲꦏꦸ ꦩꦔꦤ꧀ ꦱꦼꦒ',aksaraAuto:true});
+
+  // Regression checks for existing Javanese wordOverrides
+  expect(latinToJavaneseScriptLocal('bhasantara')).toBe('ꦨꦱꦤ꧀ꦠꦫ');
+  expect(latinToJavaneseScriptLocal('sugeng')).toBe('ꦱꦸꦒꦼꦁ');
+  expect(latinToJavaneseScriptLocal('matur')).toBe('ꦩꦠꦸꦂ');
+  expect(latinToJavaneseScriptLocal('nuwun')).toBe('ꦤꦸꦮꦸꦤ꧀');
+  expect(latinToJavaneseScriptLocal('nedha')).toBe('ꦤꦼꦝ');
+  expect(latinToJavaneseScriptLocal('panjenengan')).toBe('ꦥꦚ꧀ꦗꦼꦤꦼꦔꦤ꧀');
+  expect(latinToJavaneseScriptLocal('dalem')).toBe('ꦢꦭꦼꦩ꧀');
+  expect(latinToJavaneseScriptLocal('tilem')).toBe('ꦠꦶꦭꦼꦩ꧀');
+ });
+ it('excludes profanity/English terms from merged glossary, flags registerFallback in krama, and never overwrites curated entries',()=>{
+  // (a) Zero blocklist words or English slang idTerms anywhere in merged bhasantaraGlossary or LOCALE_PACKS
+  const mandatoryBlocked=['asu','bajingan','jancok','goblok','babi','anjing','kontol','memek','tai','celeng','bangsat','kampret'];
+  const englishBlocked=new Set(['badass','lmao','striker','wow','oke']);
+  for(const item of bhasantaraGlossary){
+   expect(englishBlocked.has(item.idTerm.toLowerCase())).toBe(false);
+   const langExtra=item.targetLang!=='id'?NUSAX_LANG_BLOCKLIST[item.targetLang]:[];
+   const words=Array.from(new Set([...mandatoryBlocked,...NUSAX_COMMON_BLOCKLIST,...langExtra]));
+   const re=new RegExp(`(^|[^a-z0-9'èéêëôâ])(${words.join('|')})(?=$|[^a-z0-9'èéêëôâ])`,'i');
+   for(const field of [item.idTerm,item.casual,item.formal,item.honorific??'']){
+    expect(re.test(field),`Blocked word in ${item.targetLang}:${item.idTerm} -> "${field}"`).toBe(false);
+   }
+  }
+  for(const pack of LOCALE_PACKS){
+   if(pack.meta.code==='id')continue;
+   const words=Array.from(new Set([...mandatoryBlocked,...NUSAX_COMMON_BLOCKLIST,...NUSAX_LANG_BLOCKLIST[pack.meta.code]]));
+   const re=new RegExp(`(^|[^a-z0-9'èéêëôâ])(${words.join('|')})(?=$|[^a-z0-9'èéêëôâ])`,'i');
+   for(const entry of pack.lexicon){
+    for(const alias of entry.aliases??[]){
+     expect(re.test(alias),`Blocked alias in ${pack.meta.code}:${entry.idTerm} -> "${alias}"`).toBe(false);
+    }
+   }
+  }
+
+  // (b) Krama mode never returns casual fallback from empty formal without registerFallback=true
+  const autoJv=translateText({text:'abu',sourceLang:'id',targetLang:'jv',register:'krama'});
+  expect(autoJv.translatedText.toLowerCase()).toBe('awu');
+  expect(autoJv.registerFallback).toBe(true);
+
+  const mixedKrama=translateText({text:'Saya melihat abu',sourceLang:'id',targetLang:'jv',register:'krama'});
+  expect(mixedKrama.translatedText.toLowerCase()).toBe('kula ningali awu');
+  expect(mixedKrama.registerFallback).toBe(true);
+
+  const curatedKrama=translateText({text:'Saya makan nasi',sourceLang:'id',targetLang:'jv',register:'krama'});
+  expect(curatedKrama.translatedText.toLowerCase()).toBe('kula nedha sekul');
+  expect(curatedKrama.registerFallback).toBe(false);
+
+  for(const pack of LOCALE_PACKS){
+   if(pack.meta.code==='id')continue;
+   for(const entry of pack.lexicon.filter(e=>!e.formal)){
+    const res=translateText({text:entry.idTerm,sourceLang:'id',targetLang:pack.meta.code,register:'krama'});
+    if(res.sourceMethod==='glossary'){
+     expect(res.registerFallback,`${pack.meta.code}:${entry.idTerm} returned casual without registerFallback`).toBe(true);
+    }
+   }
+  }
+
+  // (c) Curated entries ALWAYS win over NusaX (never overwriting casual/formal/honorific)
+  for(const rawPack of RAW_PACKS){
+   if(rawPack.meta.code==='id')continue;
+   const mergedPack=LOCALE_MAP[rawPack.meta.code];
+   for(const rawEntry of rawPack.lexicon){
+    const hit=mergedPack.lexicon.find(e=>e.idTerm.trim().toLowerCase()===rawEntry.idTerm.trim().toLowerCase())!;
+    expect(hit).toBeDefined();
+    expect(hit.casual).toBe(rawEntry.casual);
+    expect(hit.formal).toBe(rawEntry.formal);
+    expect(hit.honorific).toBe(rawEntry.honorific);
+    expect(hit.meaning).toBe(rawEntry.meaning);
+    expect(hit.partOfSpeech).toBe(rawEntry.partOfSpeech);
+    expect(hit.source).toBe('curated');
+   }
+  }
+  const jvRaw=RAW_PACKS.find(p=>p.meta.code==='jv')!;
+  const collisionMerged=enrichPackWithNusaX(jvRaw,{
+   lexicon:[{
+    idTerm:'makan',
+    casual:'OVERWRITE_CASUAL',
+    formal:'OVERWRITE_FORMAL',
+    honorific:'OVERWRITE_HONORIFIC',
+    aliases:['mangan','dhaharan_uji'],
+    source:'nusax-auto',
+    verified:false,
+    meaning:'should not overwrite',
+    partOfSpeech:'unknown',
+   }],
+  });
+  const makanMerged=collisionMerged.lexicon.find(e=>e.idTerm==='makan')!;
+  expect(makanMerged.casual).toBe('mangan');
+  expect(makanMerged.formal).toBe('nedha');
+  expect(makanMerged.honorific).toBe('dhahar');
+  expect(makanMerged.aliases).toContain('OVERWRITE_CASUAL');
+  expect(makanMerged.aliases).toContain('dhaharan_uji');
+
+  // Targeted linguistic fixes check (Part 1)
+  expect(translateText({text:'Saya ingin pergi ke pasar.',sourceLang:'id',targetLang:'jv',register:'krama'}).translatedText).toBe('Kula badhe kesah dhateng peken.');
+  expect(translateText({text:'Maaf, saya tidak bisa hadir.',sourceLang:'id',targetLang:'jv',register:'krama'}).translatedText).toBe('Nyuwun pangapunten, kula mboten saged dhateng.');
+  expect(translateText({text:'obat',sourceLang:'id',targetLang:'jv',register:'ngoko'}).translatedText).toBe('tamba');
+  expect(translateText({text:'garam',sourceLang:'id',targetLang:'jv',register:'krama'}).translatedText).toBe('sarem');
+  expect(translateText({text:'jawab',sourceLang:'id',targetLang:'jv',register:'ngoko'}).translatedText).toBe('njawab');
+  expect(translateText({text:'Saya berdiri',sourceLang:'id',targetLang:'jv',register:'krama'}).translatedText.toLowerCase()).toBe('kula ngadeg');
+  expect(translateText({text:'Bapak berdiri',sourceLang:'id',targetLang:'jv',register:'krama'}).translatedText.toLowerCase()).toBe('bapak jumeneng');
+  expect(translateText({text:'dengar',sourceLang:'id',targetLang:'sun',register:'krama'}).translatedText).toBe('ngadangu');
+  expect(translateText({text:'bicara',sourceLang:'id',targetLang:'sun',register:'krama'}).translatedText).toBe('matur');
+  expect(translateText({text:'lihat',sourceLang:'id',targetLang:'sun',register:'ngoko'}).translatedText).toBe('nempo');
+  expect(translateText({text:'lihat',sourceLang:'id',targetLang:'sun',register:'krama'}).translatedText).toBe('ningali');
+  expect(LOCALE_MAP.ban.lexicon.find(e=>e.idTerm==='kamu')?.honorific).toBeUndefined();
  });
 });

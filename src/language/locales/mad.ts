@@ -10,7 +10,7 @@ export const maduresePack: RegionalLanguagePack = {
       'Bahasa Austronesia utama di Pulau Madura dan kawasan Tapal Kuda Jawa Timur dengan sistem undhak-usuk tutur Enja\'-Iya (akrab) dan Engghi-Bhunten (halus/hormat).',
     region: 'Pulau Madura & Tapal Kuda (Jawa Timur)',
     speakers: '13+ Juta Penutur',
-    preservationStatus: 'Vital (Hidup & Bertingkat Tutur Kuat)',
+    preservationStatus: 'Kamus draf (Enja\'-Iya · Engghi-Bhunten) · menunggu validasi penutur',
     hasSpeechLevels: true,
     registerTerms: {
       casualLabel: "Enja'-Iya (Akrab)",

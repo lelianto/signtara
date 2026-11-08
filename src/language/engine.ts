@@ -12,6 +12,7 @@ import {
   aksaraToLatinLocal,
   getNativeScriptForLanguage,
   transliterateToAksara,
+  transliterateWithMeta,
 } from './aksara';
 import {
   analyzeIndonesianToken,
@@ -64,6 +65,7 @@ const multiWordRegionalByLang = {} as Record<
   Array<{ form: string; idTerm: string; wordCount: number }>
 >;
 const markerSetByLang = {} as Record<RegionalLanguageCode, Set<string>>;
+const aksaraOverridesByLang = {} as Record<RegionalLanguageCode, Map<string, string>>;
 
 const KNOWN_ID_TERMS = new Set<string>();
 const KNOWN_ID_SINGLE_WORDS = new Set<string>([
@@ -81,6 +83,7 @@ for (const pack of LOCALE_PACKS) {
   const revSingle = new Set<string>();
   const multiReg: Array<{ form: string; idTerm: string; wordCount: number }> = [];
   const markers = new Set<string>(pack.markers.map((m) => foldDiacritics(cleanPhrase(m))));
+  const aksaraMap = new Map<string, string>();
   for (const m of pack.markers) markers.add(cleanPhrase(m));
 
   for (const entry of pack.lexicon) {
@@ -91,6 +94,15 @@ for (const pack of LOCALE_PACKS) {
     KNOWN_ID_TERMS.add(idNorm);
     for (const part of idNorm.split(' ')) {
       if (part) KNOWN_ID_SINGLE_WORDS.add(part);
+    }
+
+    if (entry.aksara && entry.aksara.trim()) {
+      for (const f of [entry.casual, entry.formal, entry.honorific]) {
+        const nf = f ? cleanPhrase(f) : '';
+        if (nf && !aksaraMap.has(nf)) {
+          aksaraMap.set(nf, entry.aksara.trim());
+        }
+      }
     }
 
     const forms = [
@@ -127,6 +139,7 @@ for (const pack of LOCALE_PACKS) {
   reverseSingleWordsByLang[code] = revSingle;
   multiWordRegionalByLang[code] = multiReg;
   markerSetByLang[code] = markers;
+  aksaraOverridesByLang[code] = aksaraMap;
 }
 
 const FIRST_PERSON_SUBJECTS = new Set(['saya', 'kami', 'kita']);
@@ -141,6 +154,24 @@ const PREPOSITIONS = new Set(['di', 'ke', 'dari', 'dengan', 'untuk', 'oleh']);
 const BOUND_ENCLITICS = new Set([
   'ku', 'mu', 'hu', 'na', 'nyo', 'ne', 'nyane', 'ta',
 ]);
+
+function selectEntryForm(
+  entry: LexiconEntry,
+  register: Register,
+  useHonorific = false
+): { text: string; registerFallback: boolean } {
+  if (register !== 'krama') {
+    return { text: entry.casual, registerFallback: false };
+  }
+  if (useHonorific && entry.honorific && entry.honorific.trim()) {
+    return { text: entry.honorific, registerFallback: false };
+  }
+  if (entry.formal && entry.formal.trim()) {
+    return { text: entry.formal, registerFallback: false };
+  }
+  // Honest fallback: entry has no polite/formal form (e.g. automatic corpus entry)
+  return { text: entry.casual, registerFallback: true };
+}
 
 function formatTargetPossessive(
   baseWord: string,
@@ -186,8 +217,52 @@ function getRegisterLabel(code: RegionalLanguageCode, register: Register): strin
   return register === 'krama' ? 'Halus / Formal' : 'Sehari-hari';
 }
 
+function buildAksaraFields(
+  text: string,
+  targetLang: RegionalLanguageCode,
+  fallbackScript: AksaraScript,
+  nativeScript: AksaraScript | undefined,
+  options?: {
+    directEntryAksara?: string;
+    extraOverrides?: ReadonlyMap<string, string>;
+  }
+): { aksaraText: string; nativeAksaraText: string | null; aksaraAuto: boolean } {
+  const baseOverrides = aksaraOverridesByLang[targetLang];
+  let mergedOverrides: ReadonlyMap<string, string> | undefined = baseOverrides;
+  if (options?.extraOverrides && options.extraOverrides.size > 0) {
+    const combined = new Map<string, string>(baseOverrides);
+    for (const [k, v] of options.extraOverrides.entries()) {
+      combined.set(k, v);
+    }
+    mergedOverrides = combined;
+  }
+
+  if (nativeScript) {
+    const nativeMeta = transliterateWithMeta(text, nativeScript, {
+      entryAksara: options?.directEntryAksara,
+      lexiconOverrides: mergedOverrides,
+    });
+    const fallbackMeta =
+      fallbackScript === nativeScript
+        ? nativeMeta
+        : transliterateWithMeta(text, fallbackScript);
+    return {
+      aksaraText: fallbackMeta.text,
+      nativeAksaraText: nativeMeta.text,
+      aksaraAuto: nativeMeta.aksaraAuto,
+    };
+  }
+
+  const fallbackMeta = transliterateWithMeta(text, fallbackScript);
+  return {
+    aksaraText: fallbackMeta.text,
+    nativeAksaraText: null,
+    aksaraAuto: fallbackMeta.aksaraAuto,
+  };
+}
+
 /**
- * Deterministic local regional language detector across all 9 Nusantara languages.
+ * Deterministic local regional language detector across all Nusantara languages.
  * Scores script range, parallel sentences, multi-word phrases, language markers,
  * and distinctive lexicon entries while avoiding false-friend collisions with Indonesian.
  */
@@ -357,7 +432,7 @@ function pivotRegionalToIndonesian(
       matchedCount: norm.split(' ').length,
       totalTokens: norm.split(' ').length,
       untranslated: [],
-      matchedMeaning: entry?.meaning,
+      matchedMeaning: entry?.meaning || undefined,
       method: 'glossary',
     };
   }
@@ -452,7 +527,8 @@ function preserveInitialCap(sourceText: string, translated: string): string {
  * 1. Sign mode (`inputMode: 'sign'`): BISINDO -> Bahasa Indonesia -> Target Regional Language
  * 2. Text mode (`inputMode: 'text'`): Source Language (Indonesia / Regional A / Auto) <-> Target Language (Indonesia / Regional B)
  * 3. Context-aware speech levels (`casual`, self-polite `formal`, elder-respecting `honorific`)
- * 4. Honest native Aksara availability (`hasNativeAksara`, `nativeAksaraText`) & `coverage` metrics
+ *    with honest `registerFallback: true` when a formal form is unavailable
+ * 4. Honest native Aksara availability (`hasNativeAksara`, `nativeAksaraText`, `aksaraAuto`) & `coverage` metrics
  */
 export function translateText(options: TranslationOptions): SpelledTranslationResult {
   const {
@@ -505,11 +581,13 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       languageName: langMeta.name,
       nativeName: langMeta.nativeName,
       registerLabel,
+      registerFallback: false,
       hasSpeechLevels: langMeta.hasSpeechLevels,
       hasNativeAksara,
       nativeScript,
       aksaraText: aksara,
       nativeAksaraText: nativeAksara,
+      aksaraAuto: Boolean(letter),
       aksaraLabel: nativeScript ? AKSARA_LABELS[nativeScript] : AKSARA_LABELS[fallbackScript],
       untranslatedTokens: [],
       coverage: letter ? 1 : 0,
@@ -527,10 +605,12 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       languageName: langMeta.name,
       nativeName: langMeta.nativeName,
       registerLabel: 'Standar',
+      registerFallback: false,
       hasSpeechLevels: false,
       hasNativeAksara: false,
       aksaraText: transliterateToAksara(clean, fallbackScript),
       nativeAksaraText: null,
+      aksaraAuto: true,
       aksaraLabel: AKSARA_LABELS[fallbackScript],
       untranslatedTokens: [],
       coverage: 1,
@@ -562,10 +642,12 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       languageName: langMeta.name,
       nativeName: langMeta.nativeName,
       registerLabel: 'Standar',
+      registerFallback: false,
       hasSpeechLevels: false,
       hasNativeAksara: false,
       aksaraText: transliterateToAksara(effectiveIndonesian, fallbackScript),
       nativeAksaraText: null,
+      aksaraAuto: true,
       aksaraLabel: AKSARA_LABELS[fallbackScript],
       matchedMeaning: pivotInfo?.matchedMeaning,
       untranslatedTokens: untrans,
@@ -591,6 +673,7 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
     );
     if (crossParallel) {
       const out = crossParallel.targetText;
+      const aksaraFields = buildAksaraFields(out, targetLang, fallbackScript, nativeScript);
       return {
         indonesianText: effectiveIndonesian,
         translatedText: out,
@@ -599,11 +682,11 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
         languageName: langMeta.name,
         nativeName: langMeta.nativeName,
         registerLabel,
+        registerFallback: false,
         hasSpeechLevels: langMeta.hasSpeechLevels,
         hasNativeAksara,
         nativeScript,
-        aksaraText: transliterateToAksara(out, fallbackScript),
-        nativeAksaraText: nativeScript ? transliterateToAksara(out, nativeScript) : null,
+        ...aksaraFields,
         aksaraLabel: nativeScript ? AKSARA_LABELS[nativeScript] : AKSARA_LABELS[fallbackScript],
         matchedMeaning: crossParallel.context,
         untranslatedTokens: [],
@@ -625,6 +708,11 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       register === 'krama' && parallelHit.formalText
         ? parallelHit.formalText
         : parallelHit.targetText;
+    const isNusaXAutoParallel =
+      register === 'krama' &&
+      !parallelHit.formalText &&
+      /NusaX/i.test(parallelHit.context);
+    const aksaraFields = buildAksaraFields(out, targetLang, fallbackScript, nativeScript);
     return {
       indonesianText: parallelHit.idText,
       translatedText: out,
@@ -633,11 +721,11 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       languageName: langMeta.name,
       nativeName: langMeta.nativeName,
       registerLabel,
+      registerFallback: isNusaXAutoParallel,
       hasSpeechLevels: langMeta.hasSpeechLevels,
       hasNativeAksara,
       nativeScript,
-      aksaraText: transliterateToAksara(out, fallbackScript),
-      nativeAksaraText: nativeScript ? transliterateToAksara(out, nativeScript) : null,
+      ...aksaraFields,
       aksaraLabel: nativeScript ? AKSARA_LABELS[nativeScript] : AKSARA_LABELS[fallbackScript],
       matchedMeaning: parallelHit.context,
       untranslatedTokens: [],
@@ -661,11 +749,17 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
 
   if (exactKey) {
     const exactEntry = fwdMap.get(exactKey)!;
-    const translated = register === 'krama' ? exactEntry.formal : exactEntry.casual;
+    const selected = selectEntryForm(exactEntry, register, false);
+    const translated = selected.text;
     const honorificVariant =
-      register === 'krama' && exactEntry.honorific && exactEntry.honorific !== exactEntry.formal
+      register === 'krama' &&
+      exactEntry.honorific &&
+      exactEntry.honorific !== exactEntry.formal
         ? exactEntry.honorific
         : undefined;
+    const aksaraFields = buildAksaraFields(translated, targetLang, fallbackScript, nativeScript, {
+      directEntryAksara: exactEntry.aksara,
+    });
     return {
       indonesianText: resolvedSourceLang !== 'id' ? effectiveIndonesian : clean,
       translatedText: translated,
@@ -675,13 +769,13 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       languageName: langMeta.name,
       nativeName: langMeta.nativeName,
       registerLabel,
+      registerFallback: selected.registerFallback,
       hasSpeechLevels: langMeta.hasSpeechLevels,
       hasNativeAksara,
       nativeScript,
-      aksaraText: transliterateToAksara(translated, fallbackScript),
-      nativeAksaraText: nativeScript ? transliterateToAksara(translated, nativeScript) : null,
+      ...aksaraFields,
       aksaraLabel: nativeScript ? AKSARA_LABELS[nativeScript] : AKSARA_LABELS[fallbackScript],
-      matchedMeaning: exactEntry.meaning,
+      matchedMeaning: exactEntry.meaning || undefined,
       untranslatedTokens: [],
       coverage: 1,
       sourceMethod: resolvedSourceLang !== 'id' ? 'pivot' : 'glossary',
@@ -693,7 +787,9 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
   const outTokens: string[] = [];
   const untranslatedSet = new Set<string>(pivotInfo?.untranslated ?? []);
   const meanings: string[] = [];
+  const localAksaraOverrides = new Map<string, string>();
   let honorificNote: string | undefined;
+  let didRegisterFallback = false;
   let matchedUnits = 0;
   let totalContentUnits = 0;
 
@@ -722,17 +818,18 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
           Boolean(entry.honorific) &&
           !RESPECTED_NOUN_TITLES.has(entry.idTerm);
 
-        const chosen =
-          register === 'krama'
-            ? useHonorific
-              ? entry.honorific!
-              : entry.formal
-            : entry.casual;
+        const selected = selectEntryForm(entry, register, useHonorific);
+        if (selected.registerFallback) didRegisterFallback = true;
+        if (entry.aksara && entry.aksara.trim()) {
+          localAksaraOverrides.set(cleanPhrase(selected.text), entry.aksara.trim());
+        }
 
-        outTokens.push(`${chosen}${trail}`);
+        outTokens.push(`${selected.text}${trail}`);
         matchedUnits += len;
         totalContentUnits += len;
-        if (meanings.length < 2) meanings.push(`${entry.idTerm}: ${entry.meaning}`);
+        if (entry.meaning && meanings.length < 2) {
+          meanings.push(`${entry.idTerm}: ${entry.meaning}`);
+        }
         if (/[?.!,;:]/.test(trail)) {
           clauseSubject = 'neutral';
           prevStem = '';
@@ -763,10 +860,16 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
     // Check if colloquial normalization expanded to a multi-word phrase (e.g. "makasih" -> "terima kasih")
     if (analyzed.normalized.includes(' ') && fwdMap.has(analyzed.normalized)) {
       const phraseEntry = fwdMap.get(analyzed.normalized)!;
-      const chosen = register === 'krama' ? phraseEntry.formal : phraseEntry.casual;
-      outTokens.push(`${lead}${chosen}${trail}`);
+      const selected = selectEntryForm(phraseEntry, register, false);
+      if (selected.registerFallback) didRegisterFallback = true;
+      if (phraseEntry.aksara && phraseEntry.aksara.trim()) {
+        localAksaraOverrides.set(cleanPhrase(selected.text), phraseEntry.aksara.trim());
+      }
+      outTokens.push(`${lead}${selected.text}${trail}`);
       matchedUnits++;
-      if (meanings.length < 2) meanings.push(`${phraseEntry.idTerm}: ${phraseEntry.meaning}`);
+      if (phraseEntry.meaning && meanings.length < 2) {
+        meanings.push(`${phraseEntry.idTerm}: ${phraseEntry.meaning}`);
+      }
       prevStem = analyzed.normalized;
       i++;
       continue;
@@ -789,12 +892,13 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
         Boolean(entry.honorific) &&
         !RESPECTED_NOUN_TITLES.has(analyzed.stem);
 
-      const baseChosen =
-        register === 'krama'
-          ? useHonorific
-            ? entry.honorific!
-            : entry.formal
-          : entry.casual;
+      const selected = selectEntryForm(entry, register, useHonorific);
+      if (selected.registerFallback) didRegisterFallback = true;
+      const baseChosen = selected.text;
+
+      if (entry.aksara && entry.aksara.trim() && !analyzed.possessive) {
+        localAksaraOverrides.set(cleanPhrase(baseChosen), entry.aksara.trim());
+      }
 
       if (
         register === 'krama' &&
@@ -813,17 +917,20 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       let withLocative = withPossessive;
       if (analyzed.locativePrefix) {
         const locEntry = fwdMap.get(analyzed.locativePrefix);
-        const locWord = locEntry
-          ? register === 'krama'
-            ? locEntry.formal
-            : locEntry.casual
-          : analyzed.locativePrefix;
+        let locWord: string = analyzed.locativePrefix;
+        if (locEntry) {
+          const locSel = selectEntryForm(locEntry, register, false);
+          if (locSel.registerFallback) didRegisterFallback = true;
+          locWord = locSel.text;
+        }
         withLocative = `${locWord} ${withPossessive}`;
       }
 
       outTokens.push(`${lead}${withLocative}${trail}`);
       matchedUnits++;
-      if (meanings.length < 2) meanings.push(`${entry.idTerm}: ${entry.meaning}`);
+      if (entry.meaning && meanings.length < 2) {
+        meanings.push(`${entry.idTerm}: ${entry.meaning}`);
+      }
     } else {
       const fallbackWord = /^[A-Z]{2,}$/.test(core) ? core.toLowerCase() : core;
       outTokens.push(`${lead}${fallbackWord}${trail}`);
@@ -851,6 +958,10 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
       ? Number(Math.max(0, (totalContentUnits - untranslatedTokens.length) / totalContentUnits).toFixed(2))
       : 0;
 
+  const aksaraFields = buildAksaraFields(finalTranslated, targetLang, fallbackScript, nativeScript, {
+    extraOverrides: localAksaraOverrides,
+  });
+
   return {
     indonesianText: resolvedSourceLang !== 'id' ? effectiveIndonesian : clean,
     translatedText: finalTranslated,
@@ -860,13 +971,11 @@ export function translateText(options: TranslationOptions): SpelledTranslationRe
     languageName: langMeta.name,
     nativeName: langMeta.nativeName,
     registerLabel,
+    registerFallback: didRegisterFallback,
     hasSpeechLevels: langMeta.hasSpeechLevels,
     hasNativeAksara,
     nativeScript,
-    aksaraText: transliterateToAksara(finalTranslated, fallbackScript),
-    nativeAksaraText: nativeScript
-      ? transliterateToAksara(finalTranslated, nativeScript)
-      : null,
+    ...aksaraFields,
     aksaraLabel: nativeScript ? AKSARA_LABELS[nativeScript] : AKSARA_LABELS[fallbackScript],
     matchedMeaning: meanings.length ? meanings.join(' · ') : undefined,
     untranslatedTokens,
@@ -917,26 +1026,36 @@ export function analyzeCulturalLiteracy(
       g.targetLang === targetLang &&
       (cleanPhrase(g.idTerm) === norm ||
         cleanPhrase(g.casual) === norm ||
-        cleanPhrase(g.formal) === norm ||
+        (g.formal && cleanPhrase(g.formal) === norm) ||
         (g.honorific && cleanPhrase(g.honorific) === norm))
   );
 
   if (glossaryHit) {
+    const hasFormal = Boolean(glossaryHit.formal && glossaryHit.formal.trim());
+    const primaryForm = hasFormal ? glossaryHit.formal : glossaryHit.casual;
     const honText =
       glossaryHit.honorific && glossaryHit.honorific !== glossaryHit.formal
         ? ` · Hormat (Inggil/Luhur): ${glossaryHit.honorific}`
         : '';
     return {
-      term: `${glossaryHit.formal} (${glossaryHit.idTerm})`,
+      term: `${primaryForm} (${glossaryHit.idTerm})`,
       languageCode: targetLang,
-      analysis: `"${glossaryHit.formal}" (ragam halus) dan "${glossaryHit.casual}" (ragam sehari-hari) adalah padanan dalam ${langMeta.nativeName} untuk "${glossaryHit.idTerm}" (${glossaryHit.meaning}).`,
-      etymology: `Termasuk kategori kelas kata ${glossaryHit.partOfSpeech} dalam kamus lokal ${langMeta.name} (${langMeta.region}).`,
-      culturalInsight: `Pemilihan antara bentuk sehari-hari ("${glossaryHit.casual}") dan bentuk halus ("${glossaryHit.formal}") mencerminkan tata krama sosial terhadap lawan bicara.`,
-      registerLevel: `Sehari-hari: ${glossaryHit.casual} · Halus: ${glossaryHit.formal}${honText}`,
-      usageExamples: [
-        `${glossaryHit.formal} (${glossaryHit.idTerm} — ragam halus)`,
-        `${glossaryHit.casual} (${glossaryHit.idTerm} — ragam akrab)`,
-      ],
+      analysis: hasFormal
+        ? `"${glossaryHit.formal}" (ragam halus) dan "${glossaryHit.casual}" (ragam sehari-hari) adalah padanan draf dalam ${langMeta.nativeName} untuk "${glossaryHit.idTerm}"${glossaryHit.meaning ? ` (${glossaryHit.meaning})` : ''}.`
+        : `"${glossaryHit.casual}" adalah padanan korpus otomatis dalam ${langMeta.nativeName} untuk "${glossaryHit.idTerm}" (bentuk halus belum tersedia).`,
+      etymology: `Termasuk kategori kelas kata ${glossaryHit.partOfSpeech} dalam kamus draf ${langMeta.name} (${langMeta.region}).`,
+      culturalInsight: hasFormal
+        ? `Pemilihan antara bentuk sehari-hari ("${glossaryHit.casual}") dan bentuk halus ("${glossaryHit.formal}") mencerminkan tata krama sosial terhadap lawan bicara.`
+        : `Entri ini berasal dari korpus otomatis dan belum memiliki padanan ragam halus yang divalidasi penutur.`,
+      registerLevel: hasFormal
+        ? `Sehari-hari: ${glossaryHit.casual} · Halus: ${glossaryHit.formal}${honText}`
+        : `Sehari-hari: ${glossaryHit.casual} · Bentuk halus belum tersedia`,
+      usageExamples: hasFormal
+        ? [
+            `${glossaryHit.formal} (${glossaryHit.idTerm} — ragam halus)`,
+            `${glossaryHit.casual} (${glossaryHit.idTerm} — ragam akrab)`,
+          ]
+        : [`${glossaryHit.casual} (${glossaryHit.idTerm} — ragam sehari-hari)`],
     };
   }
 

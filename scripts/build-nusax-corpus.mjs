@@ -25,6 +25,53 @@ const SKIP_AMBIGUOUS_ID_TERMS = new Set([
   'amat', 'pizza', 'nya', 'ku', 'mu', 'si', 'sang',
 ]);
 
+// English / internet-slang source terms excluded from Indonesian pivot lexicon
+const ENGLISH_ID_TERMS = new Set([
+  'badass', 'lmao', 'lol', 'omg', 'wtf', 'striker', 'wow', 'oke', 'ok', 'okay',
+  'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'damn', 'crap', 'slut', 'whore',
+]);
+
+// Mandatory cross-language profanity & slur blocklist + regional variants per language.
+// Note: 'cok' is NOT blocked globally because in Acehnese ('ace') 'cok' means 'ambil'.
+const COMMON_PROFANITY_BLOCKLIST = [
+  'asu', 'bajingan', 'jancok', 'jancuk', 'dancuk', 'dancok', 'janjuk',
+  'goblok', 'goblog', 'babi', 'anjing', 'anjir', 'anjay', 'kontol',
+  'memek', 'pepek', 'puki', 'pantek', 'kimak', 'ngentot', 'tai', 'taik',
+  'celeng', 'bangsat', 'kampret', 'brengsek', 'keparat', 'bedebah',
+  'sialan', 'lonte', 'pelacur', 'sundal', 'perek',
+];
+
+const LANG_PROFANITY_BLOCKLIST = {
+  jv: ['cuk', 'cok', 'modhar', 'modar', 'matamu', 'ndasmu', 'raimu'],
+  sun: ['anying', 'koplok', 'kehed', 'modar'],
+  ban: ['cicing', 'naskleng'],
+  mad: ['jancok'],
+  bbc: [],
+  min: ['kalera', 'anciak'],
+  bug: ['sundala', 'telaso'],
+  ace: ['asee', 'paleh'],
+  bjn: ['tambuk', 'bungul', 'kuyuk'],
+  nij: [],
+};
+
+const BLOCKLIST_REGEX_BY_LANG = Object.fromEntries(
+  Object.keys(LANG_FILES).map((code) => {
+    const words = Array.from(
+      new Set([...COMMON_PROFANITY_BLOCKLIST, ...(LANG_PROFANITY_BLOCKLIST[code] ?? [])])
+    ).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    return [
+      code,
+      new RegExp(`(^|[^a-z0-9'èéêëôâ])(${words.join('|')})(?=$|[^a-z0-9'èéêëôâ])`, 'i'),
+    ];
+  })
+);
+
+function hasBlockedWord(code, text) {
+  if (!text) return false;
+  const re = BLOCKLIST_REGEX_BY_LANG[code];
+  return re ? re.test(text) : false;
+}
+
 const COMMERCIAL_NOISE_REGEX =
   /\b(grab|gojek|gofood|bni|bca|bri|mandiri|air\s*asia|shopee|tokopedia|traveloka|diskon|cicilan|kredit|promo|kasir|pelayan|hotel|resto|restoran|cafe|kafe|mall|wifi|ig|instagram|facebook|youtube|tiktok|admin|order|paket|ongkir|voucher|atm|bank|aplikasi|akun|login|online)\b|[0-9%@#]/i;
 
@@ -77,47 +124,68 @@ function cleanTerm(raw) {
     .trim();
 }
 
-function inferPos(idTerm) {
-  if (idTerm.includes(' ')) return 'phrase';
-  if (/^(me|ber|ter|di)[a-z]{3,}$/.test(idTerm)) return 'verb';
-  return 'noun';
-}
-
 const lexiconByLang = {};
 let totalSupplementEntries = 0;
+let discardedBlocklistEntries = 0;
 
 for (const [code, cfg] of Object.entries(LANG_FILES)) {
   const filePath = path.join(LEXICON_DIR, cfg.csv);
   const rows = parseCsv(fs.readFileSync(filePath, 'utf8'));
-  const grouped = new Map();
+
+  // Group ALL raw forms per idTerm first so that if ANY form/alias hits the blocklist,
+  // the ENTIRE entry for that idTerm is discarded (Item 13a).
+  const rawGrouped = new Map();
 
   for (let i = 1; i < rows.length; i++) {
     const [, rawId, rawReg] = rows[i];
     const idTerm = cleanTerm(rawId).toLowerCase();
     const regTerm = cleanTerm(rawReg).toLowerCase();
     if (!idTerm || !regTerm) continue;
-    if (idTerm.length < 2 || idTerm.length > 36 || regTerm.length > 42) continue;
-    if (/[0-9@#$%^&*()_=+[\]{}<>/\\|]/.test(idTerm) || /[0-9@#$%^&*()_=+[\]{}<>/\\|]/.test(regTerm)) continue;
-    if (SKIP_AMBIGUOUS_ID_TERMS.has(idTerm)) continue;
-    // Keep only authentic regional forms (filter out pure identical modern loanwords)
-    if (regTerm === idTerm) continue;
-
-    if (!grouped.has(idTerm)) grouped.set(idTerm, []);
-    const list = grouped.get(idTerm);
-    if (!list.includes(regTerm)) list.push(regTerm);
+    if (!rawGrouped.has(idTerm)) rawGrouped.set(idTerm, []);
+    rawGrouped.get(idTerm).push(regTerm);
   }
 
   const entries = [];
-  for (const [idTerm, forms] of grouped.entries()) {
-    const primary = forms[0];
-    const aliases = forms.slice(1, 5);
+  for (const [idTerm, rawForms] of rawGrouped.entries()) {
+    if (idTerm.length < 2 || idTerm.length > 36) continue;
+    if (SKIP_AMBIGUOUS_ID_TERMS.has(idTerm)) continue;
+    if (ENGLISH_ID_TERMS.has(idTerm)) {
+      discardedBlocklistEntries++;
+      continue;
+    }
+    if (/[0-9@#$%^&*()_=+[\]{}<>/\\|]/.test(idTerm)) continue;
+
+    // Discard ENTIRE entry if idTerm or ANY raw regional form/alias matches blocklist
+    if (
+      hasBlockedWord(code, idTerm) ||
+      rawForms.some((f) => hasBlockedWord(code, f))
+    ) {
+      discardedBlocklistEntries++;
+      continue;
+    }
+
+    const cleanForms = [];
+    for (const regTerm of rawForms) {
+      if (regTerm.length > 42) continue;
+      if (/[0-9@#$%^&*()_=+[\]{}<>/\\|]/.test(regTerm)) continue;
+      // Keep only authentic regional forms (filter out pure identical modern loanwords)
+      if (regTerm === idTerm) continue;
+      if (!cleanForms.includes(regTerm)) cleanForms.push(regTerm);
+    }
+
+    if (cleanForms.length === 0) continue;
+
+    const primary = cleanForms[0];
+    const aliases = cleanForms.slice(1, 5);
     const item = {
       idTerm,
       casual: primary,
-      formal: primary,
+      formal: '',
       ...(aliases.length ? { aliases } : {}),
-      meaning: 'Korpus paralel NusaX (CC BY-SA 4.0)',
-      partOfSpeech: inferPos(idTerm),
+      source: 'nusax-auto',
+      verified: false,
+      meaning: '',
+      partOfSpeech: 'unknown',
     };
     entries.push(item);
   }
@@ -149,6 +217,7 @@ for (const splitFile of ['valid.csv', 'train.csv', 'test.csv']) {
       if (colIdx < 0) continue;
       const targetSent = cleanTerm(r[colIdx]);
       if (!targetSent || targetSent.length < 10 || targetSent.length > 85) continue;
+      if (hasBlockedWord(code, idSent) || hasBlockedWord(code, targetSent)) continue;
       const key = idSent.toLowerCase();
       if (seenSentenceByLang[code].has(key)) continue;
       seenSentenceByLang[code].add(key);
@@ -177,6 +246,14 @@ export const NUSAX_ATTRIBUTION = {
   url: 'https://github.com/IndoNLP/nusax',
 } as const;
 
+export const NUSAX_COMMON_BLOCKLIST = ${JSON.stringify(COMMON_PROFANITY_BLOCKLIST)} as const;
+
+export const NUSAX_LANG_BLOCKLIST: Record<Exclude<RegionalLanguageCode, 'id'>, readonly string[]> = ${JSON.stringify(
+  LANG_PROFANITY_BLOCKLIST,
+  null,
+  2
+)};
+
 export const nusaxLexiconSupplement: Partial<Record<RegionalLanguageCode, LexiconEntry[]>> = ${JSON.stringify(
   lexiconByLang,
   null,
@@ -198,5 +275,5 @@ for (const code of Object.keys(LANG_FILES)) {
     `  ${code.padEnd(4)} -> +${lexiconByLang[code].length} authentic lexicon entries, +${parallelByLang[code].length} parallel sentences`
   );
 }
+console.log(`Discarded blocklisted / English entries: ${discardedBlocklistEntries}`);
 console.log(`Total authentic regional lexicon supplement: ${totalSupplementEntries}`);
-
