@@ -3,14 +3,20 @@ import{FilesetResolver,HandLandmarker,DrawingUtils}from'@mediapipe/tasks-vision'
 import{TwoHandTracker}from'./TwoHandTracker';
 import{MODEL_VERSION,MIN_SCORE,poseDistance,type FrameSize}from'./twoHand';
 import{cameraError,Stabilizer,type Recognition}from'./contracts';
+import type{NormalizedLandmark}from'@mediapipe/tasks-vision';
+/** Optional per-frame consumer (e.g. word recognition) that receives every tracked frame. */
+export type FrameListener=(hands:NormalizedLandmark[][],frame:FrameSize,now:number)=>void;
 import{readCalibration,saveCalibration,clearCalibration}from'../storage/calibration';
 export interface CameraDiagnostics {handCount:number;width:number;height:number;candidate:string;score:number;distance:number|null;reason:string;minScore:number}
 interface Capture {label:string;expectedHands:number;frames:{features:number[];handCount:number}[];started:number;lastAt:number}
 const initialDiagnostics=():CameraDiagnostics=>({handCount:0,width:0,height:0,candidate:'',score:0,distance:null,reason:'idle',minScore:MIN_SCORE});
 const initialResult=():Recognition=>({status:'unknown',confidence:0,modelVersion:MODEL_VERSION});
-export function useCamera(onCommit:(letter:string,source?:string)=>void){
- const video=useRef<HTMLVideoElement>(null),canvas=useRef<HTMLCanvasElement>(null),dispose=useRef(()=>{}),generation=useRef(0),callback=useRef(onCommit);callback.current=onCommit;
- const captureRef=useRef<Capture|null>(null),diagnosticsRef=useRef(initialDiagnostics());
+export type Facing='user'|'environment';
+/** onPause fires once when hands stay down for PAUSE_MS after at least one committed letter (hands-free word break). */
+export const PAUSE_MS=1100;
+export function useCamera(onCommit:(letter:string,source?:string)=>void,onPause?:()=>void){
+ const video=useRef<HTMLVideoElement>(null),canvas=useRef<HTMLCanvasElement>(null),dispose=useRef(()=>{}),generation=useRef(0),callback=useRef(onCommit);callback.current=onCommit;const pauseCallback=useRef(onPause);pauseCallback.current=onPause;
+ const captureRef=useRef<Capture|null>(null),diagnosticsRef=useRef(initialDiagnostics()),frameListener=useRef<FrameListener|null>(null);
  const[trackedHands,setTrackedHands]=useState(0),[recoveryEnabled,setRecoveryEnabled]=useState(false);
  const[running,setRunning]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState('Kamera belum dinyalakan.'),[result,setResult]=useState<Recognition>(initialResult),[metrics,setMetrics]=useState({fps:0,latency:0});
  const[diagnostics,setDiagnostics]=useState(initialDiagnostics),[personalCount,setPersonalCount]=useState(0),[calibrationNotice,setCalibrationNotice]=useState(''),[capture,setCapture]=useState<{label:string;count:number;total:number}|null>(null),[saving,setSaving]=useState(false);
@@ -22,14 +28,14 @@ export function useCamera(onCommit:(letter:string,source?:string)=>void){
   captureRef.current={label,expectedHands,frames:[],started:performance.now(),lastAt:0};setCapture({label,count:0,total:8});setCalibrationNotice(`Merekam bentuk ${label} yang Anda beri label. Ikuti referensi dan tahan posisi tangan tetap stabil.`);
  }
  async function removePersonalExamples(){stop();try{await clearCalibration();setPersonalCount(0);setCalibrationNotice('Contoh pribadi dihapus. Model dasar akan digunakan.')}catch{setCalibrationNotice('Contoh pribadi gagal dihapus. Periksa penyimpanan browser.')}}
- async function start(deviceId:string){
+ async function start(deviceId:string,facing:Facing='user'){
   stop();const token=generation.current;setBusy(true);setResult({...initialResult(),status:'loading'});setMessage('Menyiapkan model lokal…');
   let stream:MediaStream|undefined,landmarker:TwoHandTracker|undefined,worker:Worker|undefined,raf=0;
   const cleanup=()=>{cancelAnimationFrame(raf);stream?.getTracks().forEach(t=>t.stop());worker?.terminate();landmarker?.close();if(video.current)video.current.srcObject=null;const c=canvas.current;c?.getContext('2d')?.clearRect(0,0,c.width,c.height)};dispose.current=cleanup;
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw Error('Browser memerlukan localhost / HTTPS dan dukungan kamera.');
    // Request source-like geometry; still normalize actual dimensions if the device chooses 16:9.
-   const constraints={width:{ideal:640},height:{ideal:480},aspectRatio:{ideal:4/3},...(deviceId?{deviceId:{exact:deviceId}}:{facingMode:'user'})};
+   const constraints={width:{ideal:640},height:{ideal:480},aspectRatio:{ideal:4/3},...(deviceId?{deviceId:{exact:deviceId}}:{facingMode:facing})};
    stream=await navigator.mediaDevices.getUserMedia({video:constraints,audio:false});if(token!==generation.current){cleanup();return}
    stream.getVideoTracks()[0].onended=()=>{stop();setMessage('Kamera terputus. Sambungkan kembali dan coba lagi.');setResult({...initialResult(),status:'error'})};
    const samples=await readCalibration().catch(()=>{setCalibrationNotice('Penyimpanan contoh pribadi tidak tersedia; memakai model dasar.');return []});
@@ -40,7 +46,7 @@ export function useCamera(onCommit:(letter:string,source?:string)=>void){
    landmarker=await TwoHandTracker.create(files);if(token===generation.current)setRecoveryEnabled(landmarker.recoveryAvailable);
    if(token!==generation.current){cleanup();return}const v=video.current!;v.srcObject=stream;await v.play();if(token!==generation.current){cleanup();return}
    const smoother=new Stabilizer(minScore);let pending=false,last=-1,lastHandCount=-1,lastTick=performance.now(),started=0,frame:FrameSize={width:640,height:480};
-   let requireRelease=false,releaseFrames=0,awaitingPersonal=false,lastCalibrated='',twoHandStreak=0,oneHandFlicker=0,captureDropStreak=0;
+   let pauseArmed=false,noHandSince=0;let requireRelease=false,releaseFrames=0,awaitingPersonal=false,lastCalibrated='',twoHandStreak=0,oneHandFlicker=0,captureDropStreak=0;
    w.onmessage=e=>{
     if(token!==generation.current)return;pending=false;
     if(e.data.type==='error'){stop();setMessage(e.data.message);setResult({...initialResult(),status:'error'});return}
@@ -82,7 +88,9 @@ export function useCamera(onCommit:(letter:string,source?:string)=>void){
     else if(data.handCount===1&&twoHandStreak>=2&&oneHandFlicker<2){oneHandFlicker++;return}
     else{twoHandStreak=0;oneHandFlicker=0}
     if(data.handCount!==lastHandCount){lastHandCount=data.handCount;setMessage(data.handCount>1?'Dua tangan terdeteksi. Tahan bentuk dan posisi kedua tangan hingga stabil.':data.handCount===1?'Satu tangan terdeteksi. Untuk A, pastikan titik pelacak muncul pada kedua tangan.':'Tangan belum terdeteksi. Posisikan tangan di dalam kamera.')}
-    const next=smoother.push(data.prediction);setResult(next.result);if(next.commit)callback.current(next.commit,next.result.source);
+    const now=performance.now();
+    if(data.handCount===0){if(!noHandSince)noHandSince=now;if(pauseArmed&&now-noHandSince>=PAUSE_MS){pauseArmed=false;pauseCallback.current?.()}}else noHandSince=0;
+    const next=smoother.push(data.prediction);setResult(next.result);if(next.commit){pauseArmed=true;callback.current(next.commit,next.result.source)}
    };
    w.onerror=()=>{stop();setMessage('Inference worker gagal. Coba mulai kembali.')};
    const loop=()=>{
@@ -93,6 +101,7 @@ export function useCamera(onCommit:(letter:string,source?:string)=>void){
       last=v.currentTime;started=now;const detection=landmarker!.detect(v,now),c=canvas.current!,ctx=c.getContext('2d')!;setTrackedHands(detection.landmarks.length);
       frame={width:v.videoWidth,height:v.videoHeight};c.width=frame.width;c.height=frame.height;const draw=new DrawingUtils(ctx);
       detection.landmarks.forEach((hand,i)=>{draw.drawConnectors(hand,HandLandmarker.HAND_CONNECTIONS,{color:i?'#f6d68b':'#a9e8ba',lineWidth:3});draw.drawLandmarks(hand,{color:'#ffffff',radius:3})});
+      try{frameListener.current?.(detection.landmarks,frame,now)}catch(error){console.error('Frame listener failed',error)}
       pending=true;w.postMessage({type:'frame',hands:detection.landmarks,frame,capture:!!captureRef.current});
       setMetrics(m=>({...m,fps:1000/(now-lastTick)}));lastTick=now;
      }
@@ -103,5 +112,5 @@ export function useCamera(onCommit:(letter:string,source?:string)=>void){
   }catch(error){cleanup();if(token!==generation.current)return;setBusy(false);setRunning(false);setMessage(cameraError(error));setResult({...initialResult(),status:'error'})}
  }
  useEffect(()=>()=>{generation.current++;dispose.current()},[]);
- return{video,canvas,start,stop,running,trackedHands,recoveryEnabled,busy,message,result,metrics,diagnostics,personalCount,calibrationNotice,capture,saving,beginCalibration,removePersonalExamples};
+ return{video,canvas,frameListener,start,stop,running,trackedHands,recoveryEnabled,busy,message,result,metrics,diagnostics,personalCount,calibrationNotice,capture,saving,beginCalibration,removePersonalExamples};
 }

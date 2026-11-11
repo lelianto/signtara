@@ -9,3 +9,8 @@ output/
 ml/data/*
 !ml/data/landmarks.json
 
+
+# Downloaded third-party sign datasets (never committed; see docs/WORD_RECOGNITION.md)
+ml/datasets/
+ml/.venv/
+ml/words/out/

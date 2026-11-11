@@ -10,13 +10,56 @@ async function referenceStream(page:Page,letter:string,wide=false){
   }}});
  },{letter,wide});
 }
-test('navigation, register, unavailable vocabulary and persistent progress',async({page})=>{
- await page.goto('/');await expect(page.getByRole('heading',{name:'Dari tangan, jadi makna.'})).toBeVisible();
- await page.getByRole('button',{name:'Krama',exact:true}).click();await expect(page.getByText('BAHASA JAWA · KRAMA')).toBeVisible();
- await page.getByRole('button',{name:'Kosakata Belum tersedia'}).click();await expect(page.getByRole('button',{name:'Nyalakan kamera'})).toBeDisabled();
- await page.getByRole('button',{name:'Kamus',exact:true}).click();await page.getByRole('textbox',{name:'Cari kamus'}).fill('makan');await expect(page.getByRole('heading',{name:'makan',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Belajar',exact:true}).click();await expect(page.getByText('0 XP · 0/26 huruf')).toBeVisible();
- await page.evaluate(async()=>{const{award}=await import('/src/storage/progress.ts');await award('A')});await page.reload();await page.getByRole('button',{name:'Belajar',exact:true}).click();await expect(page.getByText('10 XP · 1/26 huruf')).toBeVisible();
+const draft=(page:Page)=>page.getByTestId('draft');
+const nav=(page:Page,name:string)=>page.getByRole('button',{name,exact:true}).first().click();
+async function chooseLanguage(page:Page,lang:RegExp,register?:RegExp){
+ await page.getByRole('button',{name:/Ganti bahasa tujuan/}).click();
+ const sheet=page.getByRole('dialog',{name:'Bahasa tujuan'});
+ await sheet.getByRole('radio',{name:lang}).click();
+ if(register)await sheet.getByRole('radio',{name:register}).click();
+ await sheet.getByRole('button',{name:/^Pakai /}).click();
+}
+
+test('navigation, language sheet, register, dictionary and persistent progress',async({page})=>{
+ await page.goto('/');
+ await expect(page.getByRole('heading',{level:1})).toContainText('Didengar dalam Bahasa Jawa');
+ await page.getByRole('tab',{name:'Ketik'}).click();
+ await page.getByRole('textbox',{name:/Tulis dalam/}).fill('terima kasih');
+ await expect(page.getByTestId('translation-output')).toHaveText('Suwun');
+ await chooseLanguage(page,/^Jawa/,/^Krama/);
+ await expect(page.getByRole('button',{name:/sekarang Bahasa Jawa · Krama/})).toBeVisible();
+ await expect(page.getByTestId('translation-output')).toHaveText('Matur nuwun');
+ await nav(page,'Kamus');await page.getByRole('searchbox',{name:'Cari kamus'}).fill('makan');await expect(page.getByRole('heading',{name:'makan',exact:true}).first()).toBeVisible();
+ await nav(page,'Belajar');await expect(page.getByTestId('progress-summary')).toHaveText('0 XP · 0/26 huruf');
+ await page.evaluate(async()=>{const{award}=await import('/src/storage/progress.ts');await award('A')});await page.reload();await nav(page,'Belajar');await expect(page.getByTestId('progress-summary')).toHaveText('10 XP · 1/26 huruf');
+});
+test('the interface uses no native browser dropdowns',async({page})=>{
+ await page.goto('/');
+ for(const name of ['Bicara','Frasa','Belajar','Kamus','Pengaturan']){await nav(page,name);await expect(page.locator('select')).toHaveCount(0)}
+ await page.getByRole('button',{name:/^Pilih kamera/}).click();
+ await expect(page.getByRole('dialog',{name:'Pilih kamera'}).getByRole('radio',{name:/Kamera belakang/})).toBeVisible();
+ await page.keyboard.press('Escape');await expect(page.getByRole('dialog',{name:'Pilih kamera'})).toBeHidden();
+});
+test('two-way conversation: speak, partner reply, and show screen',async({page})=>{
+ await page.goto('/');
+ await page.getByRole('tab',{name:'Ketik'}).click();
+ await page.getByRole('textbox',{name:/Tulis dalam/}).fill('Saya mau makan nasi');
+ await expect(page.getByTestId('translation-output')).toHaveText('Aku gelem mangan sega');
+ await page.getByRole('button',{name:'Ucapkan',exact:true}).last().click();
+ const thread=page.getByRole('region',{name:'Percakapan'});
+ await expect(thread.getByText('Aku gelem mangan sega')).toBeVisible();
+ await page.getByRole('tab',{name:'Balasan'}).click();
+ await page.getByPlaceholder('Ketik balasan…').fill('Monggo, sega wonten pawon');
+ await page.getByRole('button',{name:'Kirim'}).click();
+ await expect(thread.getByText('Monggo, sega wonten pawon')).toBeVisible();
+ await expect(thread.getByText(/^Artinya:/)).toBeVisible();
+ await thread.getByRole('button',{name:'Tunjukkan'}).click();
+ const show=page.getByRole('dialog',{name:'Tunjukkan ke lawan bicara'});
+ await expect(show.getByText('Aku gelem mangan sega')).toBeVisible();
+ await page.keyboard.press('Escape');await expect(show).toBeHidden();
+ await nav(page,'Frasa');await page.getByRole('tab',{name:'Perkenalan'}).click();
+ await page.getByRole('button',{name:/^Ucapkan: Halo/}).click();
+ await expect(page.getByRole('status').filter({hasText:'ditambahkan ke percakapan'})).toBeVisible();
 });
 test('camera permission denial on auto-start and manual retry',async({page})=>{
  await page.addInitScript(()=>Object.defineProperty(navigator,'mediaDevices',{value:{getUserMedia:()=>Promise.reject(new DOMException('denied','NotAllowedError')),enumerateDevices:()=>Promise.resolve([])}}));
@@ -43,10 +86,10 @@ for(const letter of ['A','C'])test(`real two-hand pipeline auto-starts, recogniz
  await referenceStream(page,letter);await page.goto('/');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue(letter,{timeout:15000});
- if(letter==='A')await expect(page.getByRole('status').filter({hasText:'Dua tangan terdeteksi'})).toBeVisible();
+ await expect(draft(page)).toHaveAttribute('data-value',letter,{timeout:15000});
+ if(letter==='A')await expect(page.getByRole('status').filter({hasText:'Dua tangan terdeteksi'})).toHaveCount(1);
  // A held pose must not repeatedly append the same letter.
- await page.waitForTimeout(700);await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue(letter);
+ await page.waitForTimeout(700);await expect(draft(page)).toHaveAttribute('data-value',letter);
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
  expect(await page.evaluate(()=>(window as any).__testStream.getTracks().every((t:MediaStreamTrack)=>t.readyState==='ended'))).toBe(true);
  await expect(page.getByRole('button',{name:'Nyalakan kamera'})).toBeVisible();
@@ -63,7 +106,7 @@ test('no hands never creates a letter',async({page})=>{
  }}}));
  await page.goto('/');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
- await expect(page.getByText('Tangan belum terdeteksi',{exact:true})).toBeVisible({timeout:20000});await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('');await page.getByRole('button',{name:'Hentikan kamera'}).click();
+ await expect(page.getByText('Tangan belum terlihat',{exact:true})).toBeVisible({timeout:20000});await expect(draft(page)).toHaveAttribute('data-value','');await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('model worker consumes both hands rather than the first hand only',async({page})=>{
  await page.goto('/');const output=await page.evaluate(async()=>{
@@ -73,38 +116,49 @@ test('model worker consumes both hands rather than the first hand only',async({p
  });
  expect(output.handCount).toBe(2);expect(output.prediction.label).toBe(output.expected);expect(output.prediction.confidence).toBeGreaterThanOrEqual(.75);
 });
-test('desktop/mobile layout and transparent reference sources',async({page})=>{
- await page.goto('/');await page.setViewportSize({width:1440,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.getByRole('button',{name:'Kamus',exact:true}).click();await expect(page.getByRole('link',{name:'Sumber: Rhio Sutoyo dan tim (MIT)'})).toBeVisible();await expect(page.getByRole('link',{name:'Asal setiap foto'})).toBeVisible();
+test('mobile and desktop layouts keep the speak action on screen without overflow',async({page})=>{
+ await referenceStream(page,'A',true);
+ for(const vp of [{width:390,height:844},{width:768,height:1024},{width:1280,height:720},{width:1440,height:900}]){
+  await page.setViewportSize(vp);await page.goto('/');
+  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
+  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
+  const fit=await page.evaluate(()=>({scrollW:document.documentElement.scrollWidth,innerW:innerWidth,scrollH:document.documentElement.scrollHeight,innerH:innerHeight}));
+  expect(fit.scrollW,`no horizontal overflow at ${vp.width}`).toBeLessThanOrEqual(fit.innerW);
+  expect(fit.scrollH,`Bicara fits the screen at ${vp.width}x${vp.height}`).toBeLessThanOrEqual(fit.innerH);
+  const speak=await page.getByRole('button',{name:'Ucapkan',exact:true}).last().boundingBox();
+  expect(speak!.y+speak!.height,`Ucapkan visible at ${vp.width}x${vp.height}`).toBeLessThanOrEqual(vp.height);
+  await page.getByRole('button',{name:'Hentikan kamera'}).click();
+ }
+ await page.setViewportSize({width:390,height:844});
+ for(const name of ['Frasa','Belajar','Kamus','Pengaturan']){await nav(page,name);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name).toBe(true)}
+ await nav(page,'Kamus');await page.getByRole('tab',{name:'Alfabet'}).click();
+ await expect(page.getByRole('link',{name:'Sumber: Rhio Sutoyo dan tim (MIT)'})).toBeVisible();await expect(page.getByRole('link',{name:'Asal setiap foto'})).toBeVisible();
 });
-
 test('real A recognition survives a 16:9 camera with letterboxed input',async({page})=>{
  await referenceStream(page,'A',true);await page.goto('/');
+ await nav(page,'Belajar');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
- await expect(page.getByText('1280 × 720 · rasio dikoreksi')).toBeVisible();
+ await expect(page.getByText('Bagus! Model mengenali huruf A.')).toBeVisible({timeout:20000});
+ await expect(page.getByText('1280 × 720 · rasio dikoreksi',{exact:false})).toBeVisible();
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('personal calibration persists, suppresses training output, requires hand release, then uses fresh inference',async({page})=>{
  await referenceStream(page,'A',true);await page.goto('/');
+ await nav(page,'Belajar');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
+ await expect(page.getByText('Bagus! Model mengenali huruf A.')).toBeVisible({timeout:20000});
  await page.getByRole('button',{name:'Simpan contoh pribadi A',exact:true}).click();
  await expect(page.getByText('8 contoh pribadi tersimpan.',{exact:false})).toBeVisible({timeout:15000});
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('');
- await page.waitForTimeout(800);await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('');
+ await page.waitForTimeout(800);await expect(page.locator('.feedback')).not.toContainText('mengenali huruf A');
  await page.evaluate(()=>(window as any).__setTestBlank(true));
  await expect(page.getByText('Siap menguji A.',{exact:false})).toBeVisible({timeout:10000});
  await page.evaluate(()=>(window as any).__setTestBlank(false));
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:15000});
- await expect(page.getByText('Hasil memakai contoh pribadi',{exact:false})).toBeVisible();
- await page.reload();await expect(page.getByText('8 contoh pribadi tersimpan.',{exact:false})).toBeVisible();
- await page.getByRole('button',{name:'Pengaturan',exact:true}).click();
+ await expect(page.locator('.feedback')).toContainText(/contoh pribadi A|mengenali huruf A/,{timeout:15000});
+ await page.reload();await nav(page,'Belajar');await expect(page.getByText('8 contoh pribadi tersimpan.',{exact:false})).toBeVisible();
+ await nav(page,'Pengaturan');
  await page.getByRole('button',{name:'Hapus semua contoh pribadi'}).click();
  await expect(page.getByText('Contoh pribadi dihapus.',{exact:false})).toBeVisible();
- await page.reload();await expect(page.getByText('0 contoh pribadi tersimpan.',{exact:false})).toBeVisible();
- if(await page.getByRole('button',{name:'Hentikan kamera'}).isVisible()) await page.getByRole('button',{name:'Hentikan kamera'}).click();
+ await page.reload();await nav(page,'Belajar');await expect(page.getByText('0 contoh pribadi tersimpan.',{exact:false})).toBeVisible();
 });
 test('hand count is visible directly on preview from actual landmark detection',async({page})=>{
  await referenceStream(page,'A');await page.goto('/');
@@ -116,7 +170,7 @@ test('hand count is visible directly on preview from actual landmark detection',
 test('single-hand C remains one tracked hand with recovery enabled',async({page})=>{
  await referenceStream(page,'C');await page.goto('/');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('C',{timeout:20000});
+ await expect(draft(page)).toHaveAttribute('data-value','C',{timeout:20000});
  await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('1/2 tangan');
  await page.waitForTimeout(800);await expect(page.getByRole('status',{name:'Jumlah tangan terlacak'})).toHaveText('1/2 tangan');
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
@@ -156,7 +210,7 @@ test('horizontally mirrored live camera stream for A still commits A',async({pag
  });
  await page.goto('/');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
+ await expect(draft(page)).toHaveAttribute('data-value','A',{timeout:20000});
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
 test('sequential signs A through F commit ABCDEF in a single camera session',async({page})=>{
@@ -179,94 +233,83 @@ test('sequential signs A through F commit ABCDEF in a single camera session',asy
  });
  await page.goto('/');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('A',{timeout:20000});
- await page.evaluate(()=>(window as any).__setSignLetter('B'));
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('AB',{timeout:20000});
- await page.evaluate(()=>(window as any).__setSignLetter('C'));
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('ABC',{timeout:20000});
- await page.evaluate(()=>(window as any).__setSignLetter('D'));
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('ABCD',{timeout:20000});
- await page.evaluate(()=>(window as any).__setSignLetter('E'));
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('ABCDE',{timeout:20000});
- await page.evaluate(()=>(window as any).__setSignLetter('F'));
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('ABCDEF',{timeout:20000});
+ await expect(draft(page)).toHaveAttribute('data-value','A',{timeout:20000});
+ for(const [l,expected] of [['B','AB'],['C','ABC'],['D','ABCD'],['E','ABCDE'],['F','ABCDEF']]){
+  await page.evaluate(x=>(window as any).__setSignLetter(x),l);
+  await expect(draft(page)).toHaveAttribute('data-value',expected,{timeout:20000});
+ }
  await page.getByRole('button',{name:'Hentikan kamera'}).click();
 });
-test('Bhasantara integration translates spelled text across regional languages and transliterates to Aksara Nusantara',async({page})=>{
+test('spelled text is normalized, translated across regional languages and transliterated to Aksara',async({page})=>{
  await page.goto('/');
- await page.getByRole('button',{name:'+ TERIMA KASIH'}).click();
- await expect(page.getByRole('textbox',{name:'HASIL EJAAN'})).toHaveValue('TERIMA KASIH');
- await expect(page.getByTestId('regional-translation-output')).toHaveText('Suwun');
- await page.getByRole('button',{name:'Krama',exact:true}).click();
- await expect(page.getByTestId('regional-translation-output')).toHaveText('Matur nuwun');
+ await page.getByRole('button',{name:'terima kasih',exact:true}).click();
+ await expect(draft(page)).toHaveAttribute('data-value','TERIMA KASIH ');
+ await expect(page.getByTestId('translation-output')).toHaveText('Suwun');
+ await chooseLanguage(page,/^Jawa/,/^Krama/);
+ await expect(page.getByTestId('translation-output')).toHaveText('Matur nuwun');
  await expect(page.getByTestId('live-aksara-output')).toHaveText('ꦩꦠꦸꦂ ꦤꦸꦮꦸꦤ꧀');
- await page.getByRole('combobox',{name:'Pilih bahasa daerah'}).selectOption('sun');
- await expect(page.getByTestId('regional-translation-output')).toHaveText('Hatur nuhun');
+ await chooseLanguage(page,/^Sunda/);
+ await expect(page.getByTestId('translation-output')).toHaveText('Hatur nuhun');
  await expect(page.getByTestId('live-aksara-output')).toHaveText('ᮠᮒᮥᮁ ᮔᮥᮠᮥᮔ᮪');
- await page.getByRole('button',{name:'Kamus',exact:true}).click();
- await page.getByRole('tab',{name:'Aksara Jawa'}).click();
+ // Fingerspelling without spaces is split and shown to the user.
+ await page.getByRole('button',{name:'Bersihkan ejaan'}).click();
+ await page.keyboard.type('SAYAMAKAN');
+ await expect(draft(page)).toHaveAttribute('data-value','SAYAMAKAN');
+ await expect(page.getByText('Dibaca sebagai',{exact:false})).toContainText('saya makan');
+ await page.getByRole('button',{name:'Pakai ejaan asli'}).click();
+ await expect(page.getByText('Memakai ejaan asli.',{exact:false})).toBeVisible();
+ await nav(page,'Kamus');await page.getByRole('tab',{name:'Aksara'}).click();
+ await page.getByRole('tab',{name:'Jawa',exact:true}).click();
  await expect(page.getByTestId('aksara-converter-result')).toHaveText('ꦩꦠꦸꦂ ꦤꦸꦮꦸꦤ꧀');
- await page.getByRole('tab',{name:'Aksara Bali'}).click();
+ await page.getByRole('tab',{name:'Bali',exact:true}).click();
  await expect(page.getByTestId('aksara-converter-result')).toContainText('ᬫᬢᬸᬂ');
- await page.getByRole('button',{name:'Sampurasun (Sunda)'}).click();
+ await page.getByRole('button',{name:'Sampurasun',exact:true}).click();
  await expect(page.getByTestId('cultural-literacy-card')).toContainText('Sampura ning ingsun');
 });
-test('single-screen cockpit fits 100% within desktop viewports with zero scroll (1440x900, 1366x768, and 1280x720)',async({page})=>{
- await referenceStream(page,'A',true);
- for(const vp of [{width:1440,height:900},{width:1366,height:768},{width:1280,height:720}]){
-  await page.setViewportSize(vp);
-  await page.goto('/');
-  await page.getByRole('button',{name:'+ TERIMA KASIH'}).click();
-  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
-  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
-  await expect(page.getByTestId('regional-translation-output')).toBeVisible();
-  await expect(page.getByTestId('live-aksara-output')).toBeVisible();
-  const docFit=await page.evaluate(()=>({
-   scrollH:document.documentElement.scrollHeight,
-   innerH:window.innerHeight,
-   scrollW:document.documentElement.scrollWidth,
-   innerW:window.innerWidth,
-  }));
-  expect(docFit.scrollH).toBeLessThanOrEqual(docFit.innerH);
-  expect(docFit.scrollW).toBeLessThanOrEqual(docFit.innerW);
-  const leftBox=await page.locator('.studio-left-card').boundingBox();
-  const rightBox=await page.locator('.cockpit-results').boundingBox();
-  const transcriptBox=await page.locator('#transcript').boundingBox();
-  expect(rightBox!.width).toBeGreaterThan(leftBox!.width);
-  expect(transcriptBox!.height).toBeGreaterThanOrEqual(56);
-  expect(transcriptBox!.height).toBeLessThanOrEqual(62);
-  for(const sel of ['.camera','.camera-help','#transcript','[data-testid="pivot-indonesian-output"]','[data-testid="regional-translation-output"]','[data-testid="live-aksara-output"]']){
-   const box=await page.locator(sel).boundingBox();
-   expect(box,`${sel} at ${vp.width}x${vp.height}`).not.toBeNull();
-   expect(box!.y,`${sel} top >= 0 at ${vp.width}x${vp.height}`).toBeGreaterThanOrEqual(0);
-   expect(box!.y+box!.height,`${sel} bottom <= ${vp.height} at ${vp.width}x${vp.height}`).toBeLessThanOrEqual(vp.height);
-  }
-  await page.getByRole('button',{name:'Hentikan kamera'}).click();
- }
-});
-test('dual input mode: direct regional-to-regional text flow, swap button, and conditional Aksara visibility',async({page})=>{
+test('typed regional input is auto-detected, typing mode turns the camera off, and Aksara is shown only where it exists',async({page})=>{
  await referenceStream(page,'A');
  await page.goto('/');
  await page.getByRole('button',{name:'Nyalakan kamera'}).click();
  await expect(page.getByRole('button',{name:'Hentikan kamera'})).toBeVisible({timeout:20000});
- // Switching to direct text automatically turns off the live camera
- await page.getByTestId('mode-text-btn').click();
+ await page.getByRole('tab',{name:'Ketik'}).click();
  expect(await page.evaluate(()=>(window as any).__testStream.getTracks().every((t:MediaStreamTrack)=>t.readyState==='ended'))).toBe(true);
- // Direct Javanese -> Sundanese (Krama) via Indonesian pivot
- await page.getByRole('combobox',{name:'Pilih bahasa daerah'}).selectOption('sun');
- await page.getByRole('button',{name:'Krama',exact:true}).click();
- await page.getByRole('textbox',{name:'TEKS SUMBER'}).fill('Aku mangan sega');
- await expect(page.getByTestId('detected-language-badge')).toContainText('Terdeteksi: Bahasa Jawa');
- await expect(page.getByTestId('pivot-indonesian-output')).toHaveText('saya makan nasi');
- await expect(page.getByTestId('regional-translation-output')).toHaveText('Abdi neda sangu');
- await expect(page.getByTestId('native-aksara-card')).toBeVisible();
+ await chooseLanguage(page,/^Sunda/,/^Lemes/);
+ await page.getByRole('textbox',{name:/Tulis dalam/}).fill('Aku mangan sega');
+ await expect(page.getByText('Bahasa Indonesia: Saya makan nasi')).toBeVisible();
+ await expect(page.getByTestId('translation-output')).toHaveText('Abdi neda sangu');
  await expect(page.getByTestId('live-aksara-output')).toContainText('ᮃᮘ᮪ᮓᮤ');
- // Swap direction: Sundanese -> Javanese (Krama)
- await page.getByRole('button',{name:'Tukar bahasa sumber dan tujuan'}).click();
- await expect(page.getByTestId('regional-translation-output')).toHaveText('Kula nedha sekul');
- await expect(page.getByTestId('live-aksara-output')).toContainText('ꦏꦸꦭ');
- // Conditional Aksara: Batak Toba hides Aksara card and shows honest Latin note
- await page.getByRole('combobox',{name:'Pilih bahasa daerah'}).selectOption('bbc');
- await expect(page.getByTestId('native-aksara-card')).toHaveCount(0);
- await expect(page.getByTestId('no-aksara-note')).toContainText('Batak Toba belum tersedia');
+ await chooseLanguage(page,/^Batak Toba/);
+ await expect(page.getByTestId('live-aksara-output')).toHaveCount(0);
+});
+test('every modal and page stays within the screen width on small phones',async({page})=>{
+ const fits=async(label:string)=>{
+  const m=await page.evaluate(()=>{const d=[...document.querySelectorAll('dialog[open]')].pop() as HTMLDialogElement|undefined;const r=d?.getBoundingClientRect();
+   return{open:!!d,vw:document.documentElement.clientWidth,doc:document.documentElement.scrollWidth,dlgScroll:d?.scrollWidth??0,dlgClient:d?.clientWidth??0,right:r?Math.round(r.right):0,
+    spill:d?[...d.querySelectorAll('*')].filter(e=>{const b=e.getBoundingClientRect();return b.width>0&&(b.right>r!.right+0.5||b.left<r!.left-0.5)}).length:0}});
+  expect(m.open,`${label} open`).toBe(true);
+  expect(m.doc,`${label}: page width`).toBeLessThanOrEqual(m.vw);
+  expect(m.dlgScroll,`${label}: no sideways scroll inside modal`).toBeLessThanOrEqual(m.dlgClient);
+  expect(m.right,`${label}: modal edge`).toBeLessThanOrEqual(m.vw);
+  expect(m.spill,`${label}: content spilling out`).toBe(0);
+  await page.keyboard.press('Escape');await expect(page.locator('dialog[open]')).toHaveCount(0);
+ };
+ for(const width of [320,375]){
+  await page.setViewportSize({width,height:740});await page.goto('/');
+  for(const name of ['Bicara','Frasa','Belajar','Kamus','Pengaturan']){
+   await nav(page,name);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth),`${name} at ${width}px`).toBe(true);
+  }
+  await nav(page,'Bicara');await page.getByRole('button',{name:/^Bahasa tujuan:/}).click();await fits(`Bahasa tujuan ${width}`);
+  await nav(page,'Frasa');await page.getByRole('tab',{name:'Perkenalan'}).click();await page.getByRole('button',{name:/^Tunjukkan: /}).first().click();await fits(`Tunjukkan ${width}`);
+  await nav(page,'Pengaturan');await page.getByRole('button',{name:/^Pilih kamera/}).click();await fits(`Pilih kamera ${width}`);
+  await nav(page,'Belajar');await page.getByText('Kalibrasi & diagnostik').click();await page.getByRole('button',{name:/^Contoh pribadi untuk huruf/}).click();await fits(`Huruf kalibrasi ${width}`);
+  await nav(page,'Kamus');await page.getByRole('tab',{name:'Aksara'}).click();await page.getByRole('button',{name:/^Bahasa istilah/}).click();await fits(`Bahasa istilah ${width}`);
+ }
+});
+test('word-sign toggle appears on Bicara once the built-in word model file exists',async({page})=>{
+ await page.goto('/');
+ await expect(page.getByRole('radio',{name:'Kata isyarat'})).toHaveCount(0);
+ await page.route('**/models/words-v1/model.json',r=>r.fulfill({status:200,contentType:'application/json',body:'{}'}));
+ await page.reload();
+ await expect(page.getByRole('radio',{name:'Kata isyarat'})).toBeVisible();
+ await expect(page.getByRole('radio',{name:'Ejaan huruf'})).toHaveAttribute('aria-checked','true');
 });
