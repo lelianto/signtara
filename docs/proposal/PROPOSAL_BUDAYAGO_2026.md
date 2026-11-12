@@ -14,7 +14,7 @@ Draf ini disusun dari isi repositori per 12 November 2026 (commit `f78c82c`). St
 - [ ] Isi setiap `[PERLU DATA: ...]` dengan angka bersumber, atau hapus kalimatnya
 - [ ] Konfirmasi atau ganti setiap `[ASUMSI]`, terutama mitra komunitas Tuli
 
-**Catatan nama.** Nama "Isyara" sudah dipakai setidaknya dua proyek lain: aplikasi Android penerjemah SIBI dalam [makalah seminar ITI](https://semnas.iti.ac.id/tpx/index.php/c/article/download/389/128/928) (berkas November 2025, isi lengkapnya belum dicek) dan [Isyara Vision](https://ir.uitm.edu.my/id/eprint/145551/) dari UiTM Malaysia (April 2026, untuk Bahasa Isyarat Malaysia). Keduanya proyek akademik, bukan merek dagang. Putuskan apakah nama tetap dipakai dengan pembeda (BISINDO, bahasa daerah, aksara) atau diganti, lalu cek PDKI dan toko aplikasi.
+**Catatan nama.** Nama "Isyara" sudah dipakai setidaknya dua proyek lain: aplikasi Android penerjemah SIBI dalam [makalah seminar ITI](https://semnas.iti.ac.id/tpx/index.php/c/article/download/389/128/928) (berkas November 2025, isi lengkapnya belum dicek) dan [Isyara Vision](https://ir.uitm.edu.my/id/eprint/145551/) dari UiTM Malaysia (April 2026, untuk Bahasa Isyarat Malaysia). Keduanya proyek akademik, bukan merek dagang. Keputusan tim: nama ISYARA tetap dipakai, dengan pembeda yang ditegaskan di judul (BISINDO, bahasa daerah, aksara). Sebelum rilis publik, cek PDKI dan toko aplikasi.
 
 Info lomba yang dipakai berasal dari peluncuran edisi Oktober 2025: tema "Titik Temu Budaya dan Teknologi", kategori Mahasiswa dan Profesional, tahapan seleksi administrasi, pendalaman substansi, pendampingan mentor, dan grand final ([Metro TV News](https://www.metrotvnews.com/read/kpLCaP4Q-kompetisi-budaya-go-titik-temu-budaya-dan-teknologi-untuk-pemajuan-kebudayaan)).
 
