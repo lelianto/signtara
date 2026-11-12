@@ -61,6 +61,8 @@ const WRIST = [16, 15], ELBOW = [14, 13], SHOULDER_R = 12, SHOULDER_L = 11, NOSE
 const VISIBLE = 0.5;
 
 const hx = (p: Point, aspect: number) => p.x * aspect;
+/** Wrist below this (shoulder widths under the shoulder line) = resting hand; its shape is ignored. */
+export const REST_WRIST_Y = 1.1;
 const visible = (p: PosePoint | undefined) => !!p && (p.visibility ?? 1) >= VISIBLE;
 
 /** Rotation (column-major 4x4 facial transformation matrix) to yaw/pitch/roll. */
@@ -159,7 +161,9 @@ export function holisticSequence(frames: HolisticRaw[], steps = HOLISTIC_STEPS):
     const slots = assignHands(f);
     const v: number[] = [];
     for (let s = 0; s < 2; s++) {
-      const h = slots[s];
+      // A hand hanging at rest carries no lexical shape; its arm position is still kept via pose.
+      const candidate = slots[s];
+      const h = candidate && bodies[i] && (candidate[0].y - body.oy) / body.scale > REST_WRIST_Y ? null : candidate;
       const poseWrist = f.pose && visible(f.pose[WRIST[s]]) ? f.pose[WRIST[s]] : null;
       const elbow = f.pose && visible(f.pose[ELBOW[s]]) ? rel(f.pose[ELBOW[s]]) : [0, 0];
       if (h) {
@@ -199,6 +203,29 @@ export function trimToHands(frames: HolisticRaw[]): HolisticRaw[] {
   let last = frames.length - 1;
   while (last > first && !frames[last].hands.length) last--;
   return frames.slice(first, last + 1);
+}
+
+/**
+ * Wrist height (shoulder widths below the shoulder line) under which a hand counts as raised.
+ * Measured on the training videos: resting hands sit at ~1.2–1.5, signing hands mostly < 0.8.
+ */
+export const ACTIVE_WRIST_Y = 1.0;
+
+/**
+ * Trims a recording to the span where a hand is RAISED (not merely visible), with one frame
+ * of padding. A resting hand hanging in view would otherwise stretch the sign with idle time.
+ * Falls back to trimToHands when no body is tracked or no hand is ever raised.
+ */
+export function trimToActive(frames: HolisticRaw[]): HolisticRaw[] {
+  const active = frames.map((f) => {
+    const body = bodyOf(f);
+    if (!body) return false;
+    const a = f.width / f.height;
+    return f.hands.some((h) => h.length === 21 && (h[0].y - body.oy) / body.scale < ACTIVE_WRIST_Y && Number.isFinite(hx(h[0], a)));
+  });
+  const first = active.indexOf(true), last = active.lastIndexOf(true);
+  if (first < 0) return trimToHands(frames);
+  return frames.slice(Math.max(0, first - 1), Math.min(frames.length, last + 2));
 }
 
 export function validHolisticRaw(f: unknown): f is HolisticRaw {

@@ -43,6 +43,14 @@ export function WordTrainer({ words, cameraOn }: { words: Words; cameraOn: boole
         </div>
       )}
 
+      {m?.suggestions && !rec && (
+        <div className="wl-chips" aria-label="Pilih kata yang dimaksud" data-testid="word-suggestions">
+          {m.suggestions.map((w) => (
+            <button key={w} type="button" className="wl-chip" onClick={() => words.confirmWord(w)}>{w}</button>
+          ))}
+        </div>
+      )}
+
       {words.notice && <p className="wl-fine" role="status">{words.notice}</p>}
 
       <section className="wl-word-panel" aria-label="Ajari kata baru">

@@ -1,0 +1,568 @@
+{
+ "model": "words-v1",
+ "note": "Held-out metrics come from a separate model trained without the val/test data (see ml/words/train.py). The released weights were then trained on all data.",
+ "releaseThresholds": {
+  "minProb": 0.7,
+  "minMargin": 0.15,
+  "suggestMin": 0.3
+ },
+ "videosPerDatasetClass": {
+  "bisindo-40-kata-mp4:apa": 50,
+  "bisindo-40-kata-mp4:apa kabar": 50,
+  "bisindo-40-kata-mp4:bagaimana": 50,
+  "bisindo-40-kata-mp4:baik": 50,
+  "bisindo-40-kata-mp4:belajar": 50,
+  "bisindo-40-kata-mp4:berapa": 50,
+  "bisindo-40-kata-mp4:berdiri": 50,
+  "bisindo-40-kata-mp4:bingung": 50,
+  "bisindo-40-kata-mp4:di mana": 50,
+  "bisindo-40-kata-mp4:dia": 50,
+  "bisindo-40-kata-mp4:duduk": 50,
+  "bisindo-40-kata-mp4:halo": 50,
+  "bisindo-40-kata-mp4:kalian": 50,
+  "bisindo-40-kata-mp4:kami": 50,
+  "bisindo-40-kata-mp4:kamu": 50,
+  "bisindo-40-kata-mp4:kapan": 50,
+  "bisindo-40-kata-mp4:kemana": 50,
+  "bisindo-40-kata-mp4:kita": 50,
+  "bisindo-40-kata-mp4:makan": 50,
+  "bisindo-40-kata-mp4:mandi": 50,
+  "bisindo-40-kata-mp4:marah": 50,
+  "bisindo-40-kata-mp4:melihat": 50,
+  "bisindo-40-kata-mp4:membaca": 50,
+  "bisindo-40-kata-mp4:menulis": 50,
+  "bisindo-40-kata-mp4:mereka": 50,
+  "bisindo-40-kata-mp4:minum": 50,
+  "bisindo-40-kata-mp4:pendek": 50,
+  "bisindo-40-kata-mp4:ramah": 50,
+  "bisindo-40-kata-mp4:sabar": 50,
+  "bisindo-40-kata-mp4:saya": 50,
+  "bisindo-40-kata-mp4:sedih": 50,
+  "bisindo-40-kata-mp4:selamat malam": 50,
+  "bisindo-40-kata-mp4:selamat pagi": 50,
+  "bisindo-40-kata-mp4:selamat siang": 50,
+  "bisindo-40-kata-mp4:selamat sore": 50,
+  "bisindo-40-kata-mp4:senang": 50,
+  "bisindo-40-kata-mp4:siapa": 50,
+  "bisindo-40-kata-mp4:terima kasih": 50,
+  "bisindo-40-kata-mp4:tidur": 50,
+  "bisindo-40-kata-mp4:tinggi": 50,
+  "bisindo-dinamis-5kata-b:mahal": 30,
+  "bisindo-dinamis-5kata-b:murah": 39,
+  "bisindo-dinamis-5kata-b:pagi": 30,
+  "bisindo-dinamis-5kata-b:senang": 30,
+  "bisindo-dinamis-5kata-b:tenang": 30,
+  "wl-bisindo:air": 50,
+  "wl-bisindo:apa": 50,
+  "wl-bisindo:bagaimana": 50,
+  "wl-bisindo:belajar": 50,
+  "wl-bisindo:berangkat": 50,
+  "wl-bisindo:cari": 50,
+  "wl-bisindo:datang": 50,
+  "wl-bisindo:dengar": 50,
+  "wl-bisindo:di mana": 50,
+  "wl-bisindo:hari": 50,
+  "wl-bisindo:hijau": 50,
+  "wl-bisindo:hitam": 50,
+  "wl-bisindo:ingat": 50,
+  "wl-bisindo:kapan": 50,
+  "wl-bisindo:keluarga": 50,
+  "wl-bisindo:kuning": 50,
+  "wl-bisindo:lagi": 50,
+  "wl-bisindo:maaf": 50,
+  "wl-bisindo:makan": 50,
+  "wl-bisindo:malam": 50,
+  "wl-bisindo:mengapa": 50,
+  "wl-bisindo:merah": 50,
+  "wl-bisindo:motor": 50,
+  "wl-bisindo:pagi": 50,
+  "wl-bisindo:rumah": 50,
+  "wl-bisindo:saya": 50,
+  "wl-bisindo:siang": 50,
+  "wl-bisindo:siapa": 50,
+  "wl-bisindo:sore": 50,
+  "wl-bisindo:teman": 50,
+  "wl-bisindo:terima kasih": 50,
+  "wl-bisindo:tuli": 50
+ },
+ "evaluate": {
+  "classes": 66,
+  "val:bisindo-40-kata-mp4": {
+   "n": 320,
+   "top1": 1.0,
+   "top3": 1.0,
+   "confusions": []
+  },
+  "val:bisindo-dinamis-5kata-b": {
+   "n": 22,
+   "top1": 0.9545,
+   "top3": 0.9545,
+   "confusions": [
+    [
+     "murah",
+     "kita",
+     1
+    ]
+   ]
+  },
+  "val:wl-bisindo": {
+   "n": 320,
+   "top1": 0.9094,
+   "top3": 0.975,
+   "confusions": [
+    [
+     "berangkat",
+     "air",
+     7
+    ],
+    [
+     "teman",
+     "di mana",
+     2
+    ],
+    [
+     "malam",
+     "mahal",
+     2
+    ],
+    [
+     "motor",
+     "keluarga",
+     2
+    ],
+    [
+     "terima kasih",
+     "saya",
+     1
+    ],
+    [
+     "mengapa",
+     "apa",
+     1
+    ]
+   ]
+  },
+  "test:bisindo-40-kata-mp4": {
+   "n": 320,
+   "top1": 0.9969,
+   "top3": 1.0,
+   "confusions": [
+    [
+     "halo",
+     "marah",
+     1
+    ]
+   ]
+  },
+  "test:bisindo-dinamis-5kata-b": {
+   "n": 22,
+   "top1": 0.9545,
+   "top3": 1.0,
+   "confusions": [
+    [
+     "murah",
+     "mahal",
+     1
+    ]
+   ]
+  },
+  "test:wl-bisindo": {
+   "n": 320,
+   "top1": 0.7438,
+   "top3": 0.9375,
+   "confusions": [
+    [
+     "saya",
+     "sabar",
+     10
+    ],
+    [
+     "hitam",
+     "hijau",
+     8
+    ],
+    [
+     "air",
+     "malam",
+     7
+    ],
+    [
+     "merah",
+     "siapa",
+     7
+    ],
+    [
+     "sore",
+     "siang",
+     6
+    ],
+    [
+     "apa",
+     "kapan",
+     4
+    ]
+   ]
+  },
+  "thresholds": {
+   "minProb": 0.5,
+   "minMargin": 0.15,
+   "valCoverage": 0.7946,
+   "valPrecision": 0.9981
+  },
+  "test-accepted:bisindo-40-kata-mp4": {
+   "coverage": 0.9969,
+   "precision": 1.0
+  },
+  "test-accepted:bisindo-dinamis-5kata-b": {
+   "coverage": 0.9545,
+   "precision": 0.9524
+  },
+  "test-accepted:wl-bisindo": {
+   "coverage": 0.4625,
+   "precision": 0.9324
+  }
+ },
+ "openSet": {
+  "classes": 60,
+  "val:bisindo-40-kata-mp4": {
+   "n": 288,
+   "top1": 1.0,
+   "top3": 1.0,
+   "confusions": []
+  },
+  "val:bisindo-dinamis-5kata-b": {
+   "n": 22,
+   "top1": 0.9545,
+   "top3": 1.0,
+   "confusions": [
+    [
+     "murah",
+     "kita",
+     1
+    ]
+   ]
+  },
+  "val:wl-bisindo": {
+   "n": 280,
+   "top1": 0.8643,
+   "top3": 0.95,
+   "confusions": [
+    [
+     "berangkat",
+     "air",
+     6
+    ],
+    [
+     "berangkat",
+     "apa",
+     4
+    ],
+    [
+     "dengar",
+     "di mana",
+     3
+    ],
+    [
+     "sore",
+     "pagi",
+     3
+    ],
+    [
+     "makan",
+     "belajar",
+     3
+    ],
+    [
+     "malam",
+     "selamat malam",
+     2
+    ]
+   ]
+  },
+  "test:bisindo-40-kata-mp4": {
+   "n": 288,
+   "top1": 0.9965,
+   "top3": 1.0,
+   "confusions": [
+    [
+     "halo",
+     "marah",
+     1
+    ]
+   ]
+  },
+  "test:bisindo-dinamis-5kata-b": {
+   "n": 22,
+   "top1": 0.9545,
+   "top3": 0.9545,
+   "confusions": [
+    [
+     "murah",
+     "mahal",
+     1
+    ]
+   ]
+  },
+  "test:wl-bisindo": {
+   "n": 280,
+   "top1": 0.7786,
+   "top3": 0.9,
+   "confusions": [
+    [
+     "merah",
+     "siapa",
+     10
+    ],
+    [
+     "sore",
+     "siang",
+     7
+    ],
+    [
+     "pagi",
+     "malam",
+     6
+    ],
+    [
+     "apa",
+     "berapa",
+     5
+    ],
+    [
+     "apa",
+     "kemana",
+     5
+    ],
+    [
+     "di mana",
+     "terima kasih",
+     5
+    ]
+   ]
+  },
+  "thresholds": {
+   "minProb": 0.5,
+   "minMargin": 0.15,
+   "valCoverage": 0.7864,
+   "valPrecision": 0.9978
+  },
+  "test-accepted:bisindo-40-kata-mp4": {
+   "coverage": 0.9965,
+   "precision": 1.0
+  },
+  "test-accepted:bisindo-dinamis-5kata-b": {
+   "coverage": 0.9545,
+   "precision": 0.9524
+  },
+  "test-accepted:wl-bisindo": {
+   "coverage": 0.4714,
+   "precision": 0.947
+  },
+  "openSetCurve": [
+   {
+    "minProb": 0.5,
+    "minMargin": 0.15,
+    "knownCoverage": 0.766,
+    "wlCoverage": 0.514,
+    "knownPrecision": 0.99,
+    "unseenFalseAcceptance": 0.217
+   },
+   {
+    "minProb": 0.5,
+    "minMargin": 0.3,
+    "knownCoverage": 0.766,
+    "wlCoverage": 0.514,
+    "knownPrecision": 0.99,
+    "unseenFalseAcceptance": 0.217
+   },
+   {
+    "minProb": 0.5,
+    "minMargin": 0.45,
+    "knownCoverage": 0.764,
+    "wlCoverage": 0.512,
+    "knownPrecision": 0.99,
+    "unseenFalseAcceptance": 0.217
+   },
+   {
+    "minProb": 0.5,
+    "minMargin": 0.6,
+    "knownCoverage": 0.708,
+    "wlCoverage": 0.396,
+    "knownPrecision": 0.994,
+    "unseenFalseAcceptance": 0.145
+   },
+   {
+    "minProb": 0.6,
+    "minMargin": 0.15,
+    "knownCoverage": 0.723,
+    "wlCoverage": 0.427,
+    "knownPrecision": 0.994,
+    "unseenFalseAcceptance": 0.172
+   },
+   {
+    "minProb": 0.6,
+    "minMargin": 0.3,
+    "knownCoverage": 0.723,
+    "wlCoverage": 0.427,
+    "knownPrecision": 0.994,
+    "unseenFalseAcceptance": 0.172
+   },
+   {
+    "minProb": 0.6,
+    "minMargin": 0.45,
+    "knownCoverage": 0.723,
+    "wlCoverage": 0.427,
+    "knownPrecision": 0.994,
+    "unseenFalseAcceptance": 0.172
+   },
+   {
+    "minProb": 0.6,
+    "minMargin": 0.6,
+    "knownCoverage": 0.708,
+    "wlCoverage": 0.396,
+    "knownPrecision": 0.994,
+    "unseenFalseAcceptance": 0.145
+   },
+   {
+    "minProb": 0.7,
+    "minMargin": 0.15,
+    "knownCoverage": 0.658,
+    "wlCoverage": 0.295,
+    "knownPrecision": 0.997,
+    "unseenFalseAcceptance": 0.06
+   },
+   {
+    "minProb": 0.7,
+    "minMargin": 0.3,
+    "knownCoverage": 0.658,
+    "wlCoverage": 0.295,
+    "knownPrecision": 0.997,
+    "unseenFalseAcceptance": 0.06
+   },
+   {
+    "minProb": 0.7,
+    "minMargin": 0.45,
+    "knownCoverage": 0.658,
+    "wlCoverage": 0.295,
+    "knownPrecision": 0.997,
+    "unseenFalseAcceptance": 0.06
+   },
+   {
+    "minProb": 0.7,
+    "minMargin": 0.6,
+    "knownCoverage": 0.658,
+    "wlCoverage": 0.295,
+    "knownPrecision": 0.997,
+    "unseenFalseAcceptance": 0.06
+   },
+   {
+    "minProb": 0.8,
+    "minMargin": 0.15,
+    "knownCoverage": 0.555,
+    "wlCoverage": 0.13,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.007
+   },
+   {
+    "minProb": 0.8,
+    "minMargin": 0.3,
+    "knownCoverage": 0.555,
+    "wlCoverage": 0.13,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.007
+   },
+   {
+    "minProb": 0.8,
+    "minMargin": 0.45,
+    "knownCoverage": 0.555,
+    "wlCoverage": 0.13,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.007
+   },
+   {
+    "minProb": 0.8,
+    "minMargin": 0.6,
+    "knownCoverage": 0.555,
+    "wlCoverage": 0.13,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.007
+   },
+   {
+    "minProb": 0.85,
+    "minMargin": 0.15,
+    "knownCoverage": 0.377,
+    "wlCoverage": 0.052,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   },
+   {
+    "minProb": 0.85,
+    "minMargin": 0.3,
+    "knownCoverage": 0.377,
+    "wlCoverage": 0.052,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   },
+   {
+    "minProb": 0.85,
+    "minMargin": 0.45,
+    "knownCoverage": 0.377,
+    "wlCoverage": 0.052,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   },
+   {
+    "minProb": 0.85,
+    "minMargin": 0.6,
+    "knownCoverage": 0.377,
+    "wlCoverage": 0.052,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   },
+   {
+    "minProb": 0.9,
+    "minMargin": 0.15,
+    "knownCoverage": 0.063,
+    "wlCoverage": 0.004,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   },
+   {
+    "minProb": 0.9,
+    "minMargin": 0.3,
+    "knownCoverage": 0.063,
+    "wlCoverage": 0.004,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   },
+   {
+    "minProb": 0.9,
+    "minMargin": 0.45,
+    "knownCoverage": 0.063,
+    "wlCoverage": 0.004,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   },
+   {
+    "minProb": 0.9,
+    "minMargin": 0.6,
+    "knownCoverage": 0.063,
+    "wlCoverage": 0.004,
+    "knownPrecision": 1.0,
+    "unseenFalseAcceptance": 0.0
+   }
+  ],
+  "openSet": {
+   "unseen": [
+    "bagaimana",
+    "baik",
+    "hitam",
+    "mereka",
+    "saya",
+    "tuli"
+   ],
+   "videos": 400,
+   "falseAcceptance": 0.2175
+  }
+ }
+}

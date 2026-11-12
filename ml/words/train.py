@@ -26,8 +26,14 @@ import torch.nn.functional as F
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'ml/words/out'
 SEED = 7
+# Chosen from the open-set curve (metrics.json → openSet.openSetCurve): at minProb 0.7, 6% of signs from
+# words never trained were falsely accepted (21.7% at 0.5). Below that, the top-3 are offered as
+# suggestions down to 0.3 (top-3 accuracy on an unseen WL-BISINDO signer: ~94%).
+# Label smoothing (0.1) caps confidence near 0.9, so higher thresholds accept almost nothing.
+RELEASE_THRESHOLDS = {'minProb': 0.7, 'minMargin': 0.15, 'suggestMin': 0.3}
 WIDTH = 128
 EPOCHS = int(__import__('os').environ.get('EPOCHS', 70))
+FACE_DROP = float(__import__('os').environ.get('FACE_DROP', 0.4))
 
 meta = json.loads((OUT / 'features.json').read_text())
 T, D = meta['steps'], meta['dims']
@@ -99,8 +105,9 @@ def augment(x):
     for lo, hi in SLOT_RANGES:
         mask = (torch.rand(b, T, 1, device=x.device) < .08).float()
         x[:, :, lo:lo + 43] *= 1 - mask
-    # Face missing on some whole sequences (camera angle / occlusion).
-    face = (torch.rand(b, 1, 1, device=x.device) < .1).float()
+    # Face missing on whole sequences (far signer, angle, occlusion) and on single frames, so the
+    # model never depends on facial cues being present (signer s3 in WL-BISINDO: face found in 35% of frames).
+    face = ((torch.rand(b, 1, 1, device=x.device) < FACE_DROP) | (torch.rand(b, T, 1, device=x.device) < .15)).float()
     fl = slice(L['blend'][0], L['facePresent'] + 1)
     x[:, :, fl] *= 1 - face
     return x + torch.randn_like(x) * .01
@@ -169,16 +176,17 @@ def report(name, probs, labels, classes):
     return {'n': len(y), 'top1': round(acc, 4), 'top3': round(top3, 4), 'confusions': [[a, b, n] for (a, b), n in confusions]}
 
 
-def calibrate(probs, labels, classes, target=0.95):
+def calibrate(probs, labels, classes, target=0.97):
     """Smallest (minProb, minMargin) on validation whose accepted precision >= target; maximizes coverage."""
     ci = {c: i for i, c in enumerate(classes)}
     y = np.array([ci[l] for l in labels])
     s = np.sort(probs, 1)
     p1, p2 = s[:, -1], s[:, -2]
     correct = probs.argmax(1) == y
+    # Floors keep some open-set rejection even when validation is near-perfect (single-signer data).
     best = (0.9, 0.5, 0.0, 1.0)
-    for mp in np.arange(.2, .96, .05):
-        for mm in np.arange(0, .61, .05):
+    for mp in np.arange(.5, .96, .05):
+        for mm in np.arange(.15, .61, .05):
             acc = (p1 >= mp) & (p1 - p2 >= mm)
             if acc.sum() < 10:
                 continue
@@ -228,6 +236,20 @@ def evaluate(holdout_classes=0):
         p = np.sort(predict(net, mean, std, idx), 1)
         fa = float(((p[:, -1] >= th['minProb']) & (p[:, -1] - p[:, -2] >= th['minMargin'])).mean())
         print(f'  open-set: {len(idx)} videos of {sorted(unseen)} never trained; falsely accepted {fa:.3f}')
+        known = [i for i, s in enumerate(samples) if splits[i] in ('val', 'test') and s['variant'] == 0 and s['label'] not in unseen]
+        pk = predict(net, mean, std, known)
+        yk = np.array([classes.index(samples[i]['label']) for i in known])
+        sk = np.sort(pk, 1)
+        wl = np.array([samples[i]['dataset'] == 'wl-bisindo' for i in known])
+        curve = []
+        for mp in (.5, .6, .7, .8, .85, .9):
+            for mm in (.15, .3, .45, .6):
+                acc_k = (sk[:, -1] >= mp) & (sk[:, -1] - sk[:, -2] >= mm)
+                fa_u = float(((p[:, -1] >= mp) & (p[:, -1] - p[:, -2] >= mm)).mean())
+                prec = float((pk.argmax(1) == yk)[acc_k].mean()) if acc_k.any() else 0
+                curve.append({'minProb': mp, 'minMargin': mm, 'knownCoverage': round(float(acc_k.mean()), 3), 'wlCoverage': round(float(acc_k[wl].mean()), 3), 'knownPrecision': round(prec, 3), 'unseenFalseAcceptance': round(fa_u, 3)})
+                print('   ', curve[-1])
+        result['openSetCurve'] = curve
         result['openSet'] = {'unseen': sorted(unseen), 'videos': len(idx), 'falseAcceptance': round(fa, 4)}
     return result
 
@@ -245,28 +267,49 @@ def r(a):
     return [float(f'{v:.6g}') for v in np.asarray(a).ravel()]
 
 
+def export_dict(net, mean, std, classes, trained_on, subset=None):
+    """Model JSON consumed by src/recognition/wordModel.ts (BatchNorm folded into the convolutions)."""
+    layers = []
+    for (i, o, k, dil, res), conv, bn in zip(net.spec, net.convs, net.bns):
+        w, b = fold(conv, bn)
+        layers.append({'inC': i, 'outC': o, 'k': k, 'dilation': dil, 'residual': res, 'w': r(w), 'b': r(b)})
+    used = subset if subset is not None else samples
+    licenses = sorted({s['license'] for s in used})
+    return {
+        'version': 'words-v1', 'featureVersion': meta['featureVersion'], 'steps': T, 'dims': D,
+        'classes': classes, 'mean': r(mean), 'std': r(std), 'layers': layers,
+        'head': {'inF': 2 * WIDTH, 'outF': len(classes), 'w': r(net.head.weight.detach().numpy()), 'b': r(net.head.bias.detach().numpy())},
+        'thresholds': RELEASE_THRESHOLDS,
+        'datasets': sorted({s['dataset'] for s in used}), 'licenses': licenses,
+        'license': 'CC BY-NC 4.0' if any('NC' in l for l in licenses) else 'MIT',
+        'trainedOn': trained_on,
+    }
+
+
+def export_eval():
+    """Model that never saw WL-BISINDO signers s3/s4 nor 6 hidden words, for few-shot calibration (ml/words/fewshot.ts)."""
+    splits = make_splits()
+    classes = sorted({s['label'] for s in samples})
+    unseen = set(random.Random(SEED).sample(classes, 6))
+    classes = [c for c in classes if c not in unseen]
+    tr = [i for i, s in enumerate(samples) if splits[i] == 'train' and s['label'] not in unseen]
+    print(f'export-eval: {len(tr)} sequences, {len(classes)} classes, hidden words {sorted(unseen)}')
+    net, mean, std = train(tr, classes)
+    model = export_dict(net.cpu(), mean, std, classes, len(tr))
+    model['hiddenWords'] = sorted(unseen)
+    model['heldOutSigners'] = ['wl-bisindo:s3', 'wl-bisindo:s4']
+    (OUT / 'eval-model.json').write_text(json.dumps(model, separators=(',', ':')))
+    print(f'wrote {OUT}/eval-model.json')
+
+
 def release(metrics_path):
     classes = sorted({s['label'] for s in samples})
     idx = list(range(len(samples)))
     print(f'release: training on all {len(idx)} sequences, {len(classes)} classes')
     net, mean, std = train(idx, classes)
     net = net.cpu()
-    layers = []
-    for (i, o, k, dil, res), conv, bn in zip(net.spec, net.convs, net.bns):
-        w, b = fold(conv, bn)
-        layers.append({'inC': i, 'outC': o, 'k': k, 'dilation': dil, 'residual': res, 'w': r(w), 'b': r(b)})
     metrics = json.loads(Path(metrics_path).read_text()) if Path(metrics_path).exists() else {}
-    licenses = sorted({s['license'] for s in samples})
-    datasets = sorted({s['dataset'] for s in samples})
-    model = {
-        'version': 'words-v1', 'featureVersion': meta['featureVersion'], 'steps': T, 'dims': D,
-        'classes': classes, 'mean': r(mean), 'std': r(std), 'layers': layers,
-        'head': {'inF': 2 * WIDTH, 'outF': len(classes), 'w': r(net.head.weight.detach().numpy()), 'b': r(net.head.bias.detach().numpy())},
-        'thresholds': metrics.get('evaluate', {}).get('thresholds', {'minProb': .6, 'minMargin': .2}),
-        'datasets': datasets, 'licenses': licenses,
-        'license': 'CC BY-NC 4.0' if any('NC' in l for l in licenses) else 'MIT',
-        'trainedOn': len(idx),
-    }
+    model = export_dict(net, mean, std, classes, len(idx))
     out = ROOT / 'public/models/words-v1'
     out.mkdir(parents=True, exist_ok=True)
     (out / 'model.json').write_text(json.dumps(model, separators=(',', ':')))
@@ -275,7 +318,14 @@ def release(metrics_path):
     with torch.no_grad():
         x = (torch.tensor(X_all[pick]) - torch.tensor(mean)) / torch.tensor(std)
         probs = F.softmax(net(x), 1).numpy()
-    (out / 'parity-fixture.json').write_text(json.dumps({'inputs': [X_all[i].round(5).tolist() for i in pick], 'probs': probs.round(6).tolist(), 'labels': [samples[i]['label'] for i in pick]}))
+    (ROOT / 'tests/fixtures/words-v1-parity.json').write_text(json.dumps({'inputs': [X_all[i].round(5).tolist() for i in pick], 'probs': probs.round(6).tolist(), 'labels': [samples[i]['label'] for i in pick]}))
+    counts = Counter((s['dataset'], s['label']) for s in samples if s['variant'] == 0)
+    (out / 'evaluation.json').write_text(json.dumps({
+        'model': 'words-v1', 'note': 'Held-out metrics come from a separate model trained without the val/test data (see ml/words/train.py). The released weights were then trained on all data.',
+        'releaseThresholds': RELEASE_THRESHOLDS,
+        'videosPerDatasetClass': {f'{d}:{l}': n for (d, l), n in sorted(counts.items())},
+        **metrics,
+    }, indent=1))
     print(f'wrote {out}/model.json ({(out / "model.json").stat().st_size / 1e6:.2f} MB)')
 
 
@@ -287,6 +337,9 @@ if __name__ == '__main__':
         metrics['evaluate'] = evaluate()
     elif mode == 'open-set':
         metrics['openSet'] = evaluate(holdout_classes=6)
+    elif mode == 'export-eval':
+        export_eval()
+        sys.exit(0)
     elif mode == 'release':
         release(metrics_path)
         sys.exit(0)

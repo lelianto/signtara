@@ -19,7 +19,8 @@ export interface WordModel {
   std: number[];
   layers: ConvLayer[];
   head: { inF: number; outF: number; w: number[]; b: number[] };
-  thresholds: { minProb: number; minMargin: number };
+  /** minProb/minMargin: automatic acceptance; suggestMin: show top candidates for the user to confirm. */
+  thresholds: { minProb: number; minMargin: number; suggestMin?: number };
   datasets: string[];
   licenses: string[];
   license: string;
@@ -64,8 +65,8 @@ function conv(input: Float32Array[], l: ConvLayer, T: number): Float32Array[] {
   return out;
 }
 
-/** Class probabilities for one STEPS × DIMS holistic sequence. */
-export function predictWord(model: WordModel, sequence: number[][]): number[] {
+/** Pooled representation (mean ‖ max over time of the last convolution), the head's input. */
+export function pooledFeatures(model: WordModel, sequence: number[][]): Float32Array {
   const T = model.steps, D = model.dims;
   if (sequence.length !== T || sequence.some((f) => f.length !== D)) throw Error('Sequence does not match model');
   let h: Float32Array[] = Array.from({ length: D }, (_, d) => {
@@ -87,6 +88,10 @@ export function predictWord(model: WordModel, sequence: number[][]): number[] {
     for (let t = 0; t < T; t++) { sum += row[t]; if (row[t] > max) max = row[t]; }
     pooled[c] = sum / T; pooled[h.length + c] = max;
   });
+  return pooled;
+}
+
+function softmaxHead(model: WordModel, pooled: Float32Array): number[] {
   const logits = model.head.b.map((b, o) => {
     let s = b;
     for (let i = 0; i < model.head.inF; i++) s += model.head.w[o * model.head.inF + i] * pooled[i];
@@ -98,8 +103,38 @@ export function predictWord(model: WordModel, sequence: number[][]): number[] {
   return exp.map((v) => v / sum);
 }
 
+/** Class probabilities for one STEPS × DIMS holistic sequence. */
+export function predictWord(model: WordModel, sequence: number[][]): number[] {
+  return softmaxHead(model, pooledFeatures(model, sequence));
+}
+
+/**
+ * Unit-length sign embedding for few-shot matching of personal words: signs the model never
+ * learned still land near their own repetitions in this space (see docs/WORD_RECOGNITION.md).
+ */
+export function embedWord(model: WordModel, sequence: number[][]): number[] {
+  return normalizeEmbedding(pooledFeatures(model, sequence));
+}
+
+/** L2-normalizes a pooled vector (reuse pooledFeatures() output to avoid a second forward pass). */
+export function normalizeEmbedding(v: Float32Array): number[] {
+  let n = 0;
+  for (const x of v) n += x * x;
+  n = Math.sqrt(n) || 1;
+  return Array.from(v, (x) => x / n);
+}
+
+/** Cosine distance between unit-length embeddings (0 = identical, 2 = opposite). */
+export function embeddingDistance(a: number[], b: number[]): number {
+  let dot = 0;
+  for (let i = 0; i < a.length; i++) dot += a[i] * b[i];
+  return 1 - dot;
+}
+
 export interface ModelGuess {
   accepted: boolean;
+  /** Not accepted, but confident enough to offer the top candidates for confirmation. */
+  suggest: boolean;
   word: string;
   probability: number;
   margin: number;
@@ -107,13 +142,15 @@ export interface ModelGuess {
 }
 
 /** Applies the calibrated thresholds stored with the model (precision-targeted on validation data). */
-export function classifyWord(model: WordModel, sequence: number[][]): ModelGuess {
-  const probs = predictWord(model, sequence);
+export function classifyWord(model: WordModel, sequence: number[][], pooled = pooledFeatures(model, sequence)): ModelGuess {
+  const probs = softmaxHead(model, pooled);
   const ranking = probs.map((probability, i) => ({ word: model.classes[i], probability })).sort((a, b) => b.probability - a.probability);
   const [first, second] = ranking;
   const margin = first.probability - (second?.probability ?? 0);
+  const accepted = first.probability >= model.thresholds.minProb && margin >= model.thresholds.minMargin;
   return {
-    accepted: first.probability >= model.thresholds.minProb && margin >= model.thresholds.minMargin,
+    accepted,
+    suggest: !accepted && first.probability >= (model.thresholds.suggestMin ?? 1),
     word: first.word, probability: first.probability, margin, ranking: ranking.slice(0, 3),
   };
 }

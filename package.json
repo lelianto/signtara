@@ -18,7 +18,8 @@
     "ml:words:index": "node ml/words/index-datasets.mjs",
     "ml:words:extract": "node ml/words/extract.mjs ml/words/out/manifest.json 6",
     "ml:words:featurize": "esbuild ml/words/featurize.ts --bundle --platform=node --format=esm --outfile=ml/words/out/featurize.mjs --log-level=warning && node ml/words/out/featurize.mjs .",
-    "ml:words:train": "ml/.venv/bin/python ml/words/train.py"
+    "ml:words:train": "ml/.venv/bin/python ml/words/train.py",
+    "ml:words:fewshot": "esbuild ml/words/fewshot.ts --bundle --platform=node --format=esm --outfile=ml/words/out/fewshot.mjs --log-level=warning && node ml/words/out/fewshot.mjs ."
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.14",

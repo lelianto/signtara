@@ -336,6 +336,16 @@ export function TalkPage({
                             </div>
                         </div>
 
+                        {wordMode && words.lastMatch?.suggestions && words.lastMatch.suggestions.length > 0 && (
+                            <div className="chips chips--scroll" aria-label="Maksud Anda?" data-testid="word-suggestions">
+                                {words.lastMatch.suggestions.map((w) => (
+                                    <button key={w} type="button" className="chip-btn" onClick={() => words.confirmWord(w)}>
+                                        {w}?
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
                         {suggestions.length > 0 && (
                             <div className="chips chips--scroll" aria-label="Saran kata">
                                 {suggestions.map((w) => (

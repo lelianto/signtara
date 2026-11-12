@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { useCamera, FrameListener } from './useCamera';
-import { SignSegmenter, crossValidate, matchWord, rawFrame, toSequence, wordThresholds, type WordMatch } from './sequence';
+import { SignSegmenter, crossValidate, matchWord, rawFrame, toSequence, wordThresholds, type Sequence } from './sequence';
 import { normalizeWord, wordConceptId } from './vocabulary';
-import { holisticSequence, type HolisticRaw } from './holistic';
+import { holisticSequence, trimToActive, type HolisticRaw } from './holistic';
 import { HolisticTracker } from './holisticTracker';
-import { classifyWord, validateWordModel, type WordModel } from './wordModel';
+import { classifyWord, embedWord, normalizeEmbedding, pooledFeatures, validateWordModel, type WordModel } from './wordModel';
+import { crossValidateEmbeddings, matchEmbedding, type EmbeddedTemplate } from './personalEmbedding';
+import { decideWord, type WordResult } from './wordDecision';
 import {
   clearWordTemplates, deleteWord, readWordTemplates, saveWordTemplate, type StoredWordTemplate,
 } from '../storage/wordTemplates';
@@ -15,8 +17,7 @@ export interface Recording { word: string; done: number; total: number }
 
 export const RECORDINGS_PER_SESSION = 3;
 export type ModelStatus = 'off' | 'loading' | 'ready' | 'error';
-/** A decision from personal recordings (DTW) or the trained model. */
-export interface WordResult extends WordMatch { source?: 'personal' | 'model'; probability?: number }
+export type { WordResult } from './wordDecision';
 
 let modelCache: Promise<WordModel> | null = null;
 function loadWordModel() {
@@ -55,9 +56,37 @@ export function useWordRecognizer(camera: Camera, enabled: boolean, onWord: (wor
   const callback = useRef(onWord);
   callback.current = onWord;
 
-  const thresholds = useMemo(() => wordThresholds(templates), [templates]);
-  templatesRef.current = templates;
+  // Hand-only DTW is used for templates without holistic data (or for all when the model is unavailable).
+  const dtwTemplates = useMemo(() => (model ? templates.filter((t) => !t.holistic) : templates), [model, templates]);
+  const thresholds = useMemo(() => wordThresholds(dtwTemplates), [dtwTemplates]);
+  templatesRef.current = dtwTemplates;
   thresholdsRef.current = thresholds;
+
+  // Personal recordings with holistic data, embedded by the trained model (incrementally, off the hot path).
+  const embedCache = useRef(new Map<string, number[]>());
+  const [embedded, setEmbedded] = useState<EmbeddedTemplate[]>([]);
+  const embeddedRef = useRef(embedded);
+  embeddedRef.current = embedded;
+  const lastSign = useRef<{ hand: Sequence; holistic: number[][] | null } | null>(null);
+  useEffect(() => {
+    if (!model) return;
+    let cancelled = false;
+    const cache = embedCache.current;
+    const publish = () => setEmbedded(templates.filter((t) => cache.has(t.id)).map((t) => ({ id: t.id, word: t.word, conceptId: t.conceptId, embedding: cache.get(t.id)! })));
+    const todo = templates.filter((t) => t.holistic && !cache.has(t.id));
+    publish();
+    let i = 0;
+    const step = () => {
+      if (cancelled) return;
+      const t = todo[i++];
+      if (!t) { publish(); return; }
+      cache.set(t.id, embedWord(model, t.holistic!));
+      if (i % 5 === 0) publish();
+      setTimeout(step, 0);
+    };
+    step();
+    return () => { cancelled = true; };
+  }, [model, templates]);
 
   const words = useMemo(() => {
     const map = new Map<string, { word: string; conceptId: string; count: number }>();
@@ -123,9 +152,13 @@ export function useWordRecognizer(camera: Camera, enabled: boolean, onWord: (wor
         return;
       }
       const sequence = toSequence(event.frames);
+      const start = event.frames[0].t, end = event.frames[event.frames.length - 1].t;
+      const span = trimToActive(signFrames.filter((f) => f.t >= start && f.t <= end));
+      const hseq = span.length >= MIN_MODEL_FRAMES ? holisticSequence(span) : null;
+      lastSign.current = { hand: sequence, holistic: hseq };
       const rec = recordingRef.current;
       if (rec) {
-        saveWordTemplate(rec.word, sequence).then((saved) => {
+        saveWordTemplate(rec.word, sequence, hseq).then((saved) => {
           setTemplates(saved);
           setEvaluation(null);
           const done = rec.done + 1;
@@ -139,28 +172,20 @@ export function useWordRecognizer(camera: Camera, enabled: boolean, onWord: (wor
         }).catch(() => { setRec(null); setNotice('Contoh gagal disimpan. Periksa penyimpanan browser.'); });
         return;
       }
-      const personal: WordResult = { ...matchWord(sequence, templatesRef.current, thresholdsRef.current), source: 'personal' };
-      let result: WordResult = personal;
       const m = modelRef.current;
-      const start = event.frames[0].t, end = event.frames[event.frames.length - 1].t;
-      const span = signFrames.filter((f) => f.t >= start && f.t <= end);
-      if (!personal.accepted && m && span.length >= MIN_MODEL_FRAMES) {
-        const guess = classifyWord(m, holisticSequence(span));
-        const modelResult: WordResult = {
-          accepted: guess.accepted, word: guess.word, conceptId: wordConceptId(guess.word), source: 'model',
-          probability: guess.probability, distance: null, threshold: m.thresholds.minProb, separation: guess.margin,
-          reason: guess.accepted ? 'accepted' : guess.margin < m.thresholds.minMargin ? 'ambiguous' : 'too_far',
-          ranking: guess.ranking.map((r) => ({ word: r.word, distance: 1 - r.probability })),
-        };
-        // Prefer the model's view unless personal recordings had a (rejected) candidate and the model is unsure too.
-        if (modelResult.accepted || personal.reason === 'no_templates') result = modelResult;
-      }
+      const pooled = m && hseq ? pooledFeatures(m, hseq) : null;
+      const embedding = pooled && embeddedRef.current.length ? matchEmbedding(normalizeEmbedding(pooled), embeddedRef.current) : null;
+      const guess = m && hseq && pooled ? classifyWord(m, hseq, pooled) : null;
+      const dtw = templatesRef.current.length ? matchWord(sequence, templatesRef.current, thresholdsRef.current) : null;
+      const result = decideWord({ embedding, dtw, model: m && guess ? { guess, minProb: m.thresholds.minProb, minMargin: m.thresholds.minMargin } : null });
       setLastMatch(result);
       if (result.accepted && result.word && result.conceptId) {
         setNotice('');
         callback.current(result.word, result.conceptId);
       } else {
-        setNotice(result.reason === 'no_templates'
+        setNotice(result.suggestions
+          ? `Belum yakin. Maksud Anda: ${result.suggestions.join(' / ')}?`
+          : result.reason === 'no_templates'
           ? (m ? 'Isyarat belum terbaca jelas. Pastikan bahu dan wajah terlihat, lalu ulangi.' : 'Belum ada kosakata. Rekam beberapa contoh kata terlebih dahulu.')
           : result.reason === 'ambiguous'
             ? `Mirip beberapa kata (${result.ranking.slice(0, 2).map((r) => r.word).join(' / ')}). Ulangi lebih jelas.`
@@ -198,7 +223,25 @@ export function useWordRecognizer(camera: Camera, enabled: boolean, onWord: (wor
     catch { setNotice('Kosakata gagal dihapus. Periksa penyimpanan browser.'); }
   }
 
-  function evaluate() { setEvaluation(crossValidate(templatesRef.current)); }
+  function evaluate() {
+    setEvaluation(embeddedRef.current.length ? crossValidateEmbeddings(embeddedRef.current) : crossValidate(templatesRef.current));
+  }
+
+  /** User picked one of lastMatch.suggestions (or any word): emit it like a recognized word. */
+  function confirmWord(input: string) {
+    const word = normalizeWord(input);
+    if (!word) return;
+    setLastMatch((m) => (m ? { ...m, accepted: true, word, conceptId: wordConceptId(word), reason: 'accepted', suggestions: undefined } : m));
+    setNotice('');
+    callback.current(word, wordConceptId(word));
+    // Learn from the correction: the confirmed sign becomes a personal example of that word.
+    const last = lastSign.current;
+    lastSign.current = null;
+    if (last?.holistic) {
+      saveWordTemplate(word, last.hand, last.holistic, 'confirmed').then((saved) => { setTemplates(saved); setEvaluation(null); })
+        .catch(() => { /* learning is best-effort; the word was already emitted */ });
+    }
+  }
 
   return {
     templates, words, phase, duration, lastMatch, recording, notice, evaluation,
@@ -206,6 +249,6 @@ export function useWordRecognizer(camera: Camera, enabled: boolean, onWord: (wor
     /** Words the trained model can recognize without personal recordings. */
     modelWords: model?.classes ?? [],
     modelInfo: model ? { version: model.version, license: model.license, datasets: model.datasets } : null,
-    startRecording, cancelRecording, removeWord, removeAll, evaluate,
+    startRecording, cancelRecording, removeWord, removeAll, evaluate, confirmWord,
   };
 }

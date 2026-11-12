@@ -12,7 +12,7 @@ import { readFileSync, readdirSync, writeFileSync, openSync, writeSync, closeSyn
 import { join, resolve } from 'node:path';
 import {
   BLENDSHAPES, HOLISTIC_FRAME_SIZE, HOLISTIC_LAYOUT, HOLISTIC_STEPS, HOLISTIC_VERSION,
-  headAngles, holisticSequence, mirrorRaw, pickBlendshapes, trimToHands, type HolisticRaw,
+  headAngles, holisticSequence, mirrorRaw, pickBlendshapes, trimToActive, type HolisticRaw,
 } from '../../src/recognition/holistic';
 
 const ROOT = resolve(process.argv[2] || '.');
@@ -57,11 +57,15 @@ const samples: { id: string; dataset: string; label: string; signer: string; lic
 const binPath = join(OUT, 'features.bin');
 const fd = openSync(binPath, 'w');
 const skipped: Record<string, number> = {};
+const seen = new Set<string>();
 for (const file of files) {
   for (const line of readFileSync(join(OUT, 'raw', file), 'utf8').split('\n')) {
     if (!line) continue;
-    const v: RawVideo = JSON.parse(line);
-    const frames = trimToHands(toHolistic(v));
+    let v: RawVideo;
+    try { v = JSON.parse(line); } catch { skipped.corrupt = (skipped.corrupt ?? 0) + 1; continue; }
+    if (seen.has(v.id)) { skipped.duplicate = (skipped.duplicate ?? 0) + 1; continue; }
+    seen.add(v.id);
+    const frames = trimToActive(toHolistic(v));
     if (frames.length < MIN_FRAMES) { skipped[v.dataset] = (skipped[v.dataset] ?? 0) + 1; continue; }
     const variants: { frames: HolisticRaw[]; mirrored: boolean }[] = [
       { frames, mirrored: false },

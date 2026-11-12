@@ -53,6 +53,15 @@ export function WordsPanel({ words, cameraOn }: { words: Words; cameraOn: boolea
                             : `jarak ${fmt(m.distance)} / batas ${fmt(m.threshold)}`}
                         {m.separation != null && ` · selisih ${Math.round(m.separation * 100)}%`}
                     </small>
+                    {m.suggestions && m.suggestions.length > 0 && (
+                        <div className="chips" aria-label="Maksud Anda? Pilihanmu disimpan sebagai contoh">
+                            {m.suggestions.map((w) => (
+                                <button key={w} type="button" className="chip-btn" onClick={() => words.confirmWord(w)}>
+                                    {w}?
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 

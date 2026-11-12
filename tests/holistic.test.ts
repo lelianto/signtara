@@ -142,7 +142,7 @@ describe('word model inference', () => {
   it.skipIf(!existsSync(released))('matches PyTorch probabilities for the released model', () => {
     const model: unknown = JSON.parse(readFileSync(released, 'utf8'));
     validateWordModel(model);
-    const fx = JSON.parse(readFileSync('public/models/words-v1/parity-fixture.json', 'utf8'));
+    const fx = JSON.parse(readFileSync('tests/fixtures/words-v1-parity.json', 'utf8'));
     fx.inputs.forEach((input: number[][], i: number) => {
       const p = predictWord(model, input);
       p.forEach((v, j) => expect(v).toBeCloseTo(fx.probs[i][j], 3));

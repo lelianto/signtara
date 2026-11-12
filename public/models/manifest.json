@@ -26,6 +26,27 @@
     "source": "https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset",
     "commit": "e1a48c6caa9d12318c8561e9962da845ab50226e"
   },
+  "wordClassifier": {
+    "version": "words-v1",
+    "type": "temporal CNN on holistic landmark sequences",
+    "featureVersion": "wordseq-v2",
+    "classes": 66,
+    "license": "CC BY-NC 4.0",
+    "datasets": [
+      "bisindo-40-kata-mp4",
+      "bisindo-dinamis-5kata-b",
+      "wl-bisindo"
+    ],
+    "attribution": "licenses/Word-Datasets.txt",
+    "bodyLandmarker": {
+      "model": "pose_landmarker_lite float16/1",
+      "license": "Apache-2.0"
+    },
+    "faceLandmarker": {
+      "model": "face_landmarker float16/1 (blendshapes)",
+      "license": "Apache-2.0"
+    }
+  },
   "assets": [
     {
       "path": "models/twohand-v1/model.json",
@@ -42,6 +63,22 @@
     {
       "path": "ref/provenance.json",
       "sha256": "8f0b58f506b98aa2619f6b643fc97c27ed133b3d8897718edd851e10d87ac76e"
+    },
+    {
+      "path": "models/pose_landmarker_lite.task",
+      "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
+    },
+    {
+      "path": "models/face_landmarker.task",
+      "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+    },
+    {
+      "path": "models/words-v1/model.json",
+      "sha256": "6d7bc37146de1d88b557487eecaeaf9f11ab47af21dead37bb8a5e665f9c15fd"
+    },
+    {
+      "path": "models/words-v1/evaluation.json",
+      "sha256": "6fcff836104ca021094e1673b92d5d7c6b128cd316565300e97016cd0a12a851"
     }
   ]
 }
