@@ -1,0 +1,32 @@
+Word-sign model (public/models/words-v1) — training data attribution
+=====================================================================
+
+The words-v1 model weights were trained on landmark sequences extracted from the
+datasets below. The videos themselves are NOT redistributed with this application.
+
+1. WL-BISINDO — Word-Level BISINDO video dataset (Banten variant)
+   Kindy, Leonali, Lucky (BINUS University). "Word-Level BISINDO: A Novel Video
+   Indonesian Sign Language Dataset and Baseline Methods", Procedia Computer Science,
+   2025, doi:10.1016/j.procs.2025.08.277
+   Data: https://www.kaggle.com/datasets/glennleonali/wl-bisindo (Glenn Leonali)
+   Code: https://github.com/AceKinnn/WL-BISINDO
+   License: Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+   https://creativecommons.org/licenses/by-nc/4.0/
+   Because this model is trained on WL-BISINDO, the words-v1 weights are distributed
+   under CC BY-NC 4.0 as well: non-commercial use only, with attribution.
+
+2. BISINDO 40 Kata mp4 — Anggi Yohanes Pardede
+   https://www.kaggle.com/datasets/anggiyohanespardede/bisindo-40-kata-mp4
+   License: MIT (as declared on the dataset page)
+
+3. Bahasa Isyarat Indonesia Dinamis — Muhammad Dhia Ulhaq
+   https://www.kaggle.com/datasets/muhammaddhiaulhaq/bahasa-isyarat-indonesia-dinamis
+   License: MIT (as declared on the dataset page)
+
+Landmark models used for extraction and at runtime (Apache-2.0, Google MediaPipe):
+   hand_landmarker.task, pose_landmarker_lite.task, face_landmarker.task
+   https://ai.google.dev/edge/mediapipe/solutions/vision — see MediaPipe-Apache-2.0.txt
+
+Signs in these datasets have not been reviewed by this project's Deaf community
+reviewers. Regional BISINDO variants differ; a recognised word reflects the variant
+of the recorded signers.
