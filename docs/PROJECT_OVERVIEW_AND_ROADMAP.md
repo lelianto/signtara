@@ -1,12 +1,12 @@
-# ISYARA (`signtara`) — Ringkasan Sistem & Peta Pengembangan (Roadmap)
+# BISARA (`signtara`) — Ringkasan Sistem & Peta Pengembangan (Roadmap)
 
-Dokumen ini merangkum arsitektur proyek **ISYARA (`signtara`)**, kapabilitas sistem yang sudah berjalan saat ini, serta daftar rencana pengembangan (*enhancement roadmap*) ke depan.
+Dokumen ini merangkum arsitektur proyek **BISARA (`signtara`)**, kapabilitas sistem yang sudah berjalan saat ini, serta daftar rencana pengembangan (*enhancement roadmap*) ke depan.
 
 ---
 
 ## Bagian 1: Gambaran Umum & Arsitektur Proyek
 
-**ISYARA** adalah aplikasi web *local-first* (100% berjalan di browser tanpa server inferensi atau unggahan video) untuk:
+**BISARA** adalah aplikasi web *local-first* (100% berjalan di browser tanpa server inferensi atau unggahan video) untuk:
 1. **Pengenalan Ejaan Jari (Alfabet A–Z) BISINDO** menggunakan webcam dan MediaPipe.
 2. **Penerjemahan & Pembelajaran Bahasa Daerah Nusantara** (10 bahasa daerah + Bahasa Indonesia sebagai bahasa poros/pivot) beserta **transliterasi Aksara Nusantara** (Jawa, Sunda Baku, dan Bali).
 

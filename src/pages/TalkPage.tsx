@@ -153,7 +153,7 @@ export function TalkPage({
                             Didengar dalam Bahasa {langName}.
                         </h1>
                         <p className="lead">
-                            Eja kata dengan jari. ISYARA membacanya sebagai Bahasa Indonesia, menerjemahkannya, lalu mengucapkannya untuk lawan
+                            Eja kata dengan jari. BISARA membacanya sebagai Bahasa Indonesia, menerjemahkannya, lalu mengucapkannya untuk lawan
                             bicaramu. Balasan mereka muncul di sini sebagai tulisan.
                         </p>
                         <div className="starter">

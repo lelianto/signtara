@@ -1,5 +1,5 @@
 /**
- * Isyara compose engine.
+ * BISARA compose engine.
  *
  * Pipeline: ejaan jari (huruf mentah dari kamera) -> kalimat Bahasa Indonesia -> bahasa daerah.
  *

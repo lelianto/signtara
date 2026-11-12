@@ -1,4 +1,4 @@
-# ISYARA × BHASANTARA — Design System
+# BISARA × BHASANTARA — Design System
 **Edisi Khusus: Aksesibilitas Dewasa Senior & Lansia (Mature & Senior Friendly)**  
 *Dokumentasi Sistem Desain UI/UX Komprehensif — Standar Emas Ergonomi & Aksesibilitas*
 
@@ -6,7 +6,7 @@
 
 ## 1. Filosofi Desain: "Keanggunan Tradisi, Kejernihan Aksesibilitas"
 
-Desain antarmuka ISYARA dirancang dengan pendekatan humanis, anggun, dan berwibawa. Ditujukan khusus untuk kalangan **orang dewasa matang hingga lanjut usia (rentang usia 45 – 65+ tahun)** di Indonesia yang ingin mempelajari bahasa isyarat BISINDO serta melestarikan bahasa daerah Nusantara tanpa hambatan teknis.
+Desain antarmuka BISARA dirancang dengan pendekatan humanis, anggun, dan berwibawa. Ditujukan khusus untuk kalangan **orang dewasa matang hingga lanjut usia (rentang usia 45 – 65+ tahun)** di Indonesia yang ingin mempelajari bahasa isyarat BISINDO serta melestarikan bahasa daerah Nusantara tanpa hambatan teknis.
 
 Prinsip desain utama:
 1. **Zero Eye-Strain (Bebas Kelelahan Mata)**: Tidak menggunakan latar putih silau (#FFFFFF murni) dan menghapus total tipografi mikro (8px–10px) yang menyulitkan mata dengan presbiopi (*mata tua*).
@@ -18,7 +18,7 @@ Prinsip desain utama:
 
 ## 2. Riset Target Pengguna (Mature & Senior Adults)
 
-| Karakteristik Penuaan | Dampak pada Interaksi UI | Solusi Desain ISYARA |
+| Karakteristik Penuaan | Dampak pada Interaksi UI | Solusi Desain BISARA |
 |---|---|---|
 | **Presbiopi & Penurunan Sensitivitas Kontras** | Kesulitan membaca teks kecil, warna tipis/abu-abu pudar, dan garis batas yang samar. | • Ukuran font dasar dinaikkan menjadi **16px – 18px** (tidak ada teks di bawah 13px).<br>• Rasio kontras teks minimum **7:1 (WCAG AAA)**.<br>• Border kartu tegas dan jelas (minimal 1.5px solid). |
 | **Penurunan Akurasi Motorik Halus** | Jari gemetar atau klik mouse kurang presisi; frustrasi jika tombol terlalu berdekatan. | • Tombol utama berukuran minimum **48px – 52px**.<br>• Jarak renggang (*padding & gap*) antar elemen minimal **12px – 16px**.<br>• Indikator fokus (*focus ring*) tebal dan kontras tinggi. |
@@ -145,7 +145,7 @@ Berikut adalah variabel resmi yang disiapkan untuk diinjeksikan ke dalam `src/st
 ```css
 :root {
   /* ===================================================
-     1. PALET WARNA RESMI ISYARA (60 - 20 - 10 - 10)
+     1. PALET WARNA RESMI BISARA (60 - 20 - 10 - 10)
      =================================================== */
   --bg-primary: #FCF7F0;        /* 60%: Krem Linen Hangat */
   --bg-secondary: #101827;      /* 20%: Obsidian Midnight */

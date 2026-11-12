@@ -36,6 +36,7 @@ export const DEFAULT_PREFS: Prefs = {
     customPhrases: [],
 };
 
+// Kunci lama "isyara" (sebelum BISARA) sengaja dipertahankan agar pengaturan yang sudah tersimpan tidak hilang.
 const KEY = 'isyara.prefs.v1';
 
 function read(): Prefs {

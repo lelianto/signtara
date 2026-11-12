@@ -64,7 +64,7 @@ function VoiceRow({ prefs, update }: { prefs: Prefs; update: (p: Partial<Prefs>)
             </div>
             {voices.length > 0 && (!best || voiceQuality(best) < NATURAL_VOICE_SCORE) && (
                 <p className="row-note">
-                    Suara di perangkat ini masih kaku. Buka ISYARA di Microsoft Edge untuk suara natural Gadis atau Ardi, atau unduh suara Damayanti (Enhanced) di
+                    Suara di perangkat ini masih kaku. Buka BISARA di Microsoft Edge untuk suara natural Gadis atau Ardi, atau unduh suara Damayanti (Enhanced) di
                     Pengaturan Mac/iPhone, bagian Aksesibilitas, Konten Lisan.
                 </p>
             )}
@@ -249,11 +249,11 @@ export function SettingsPage({
 
             <section className="group" aria-labelledby="set-about">
                 <h2 id="set-about" className="group-title">
-                    Tentang ISYARA
+                    Tentang BISARA
                 </h2>
                 <div className="about">
                     <p>
-                        ISYARA mengenali <b>ejaan jari</b> BISINDO (A sampai Z) dan kata isyarat yang kamu rekam sendiri. Ini belum menerjemahkan
+                        BISARA mengenali <b>ejaan jari</b> BISINDO (A sampai Z) dan kata isyarat yang kamu rekam sendiri. Ini belum menerjemahkan
                         BISINDO sebagai bahasa utuh.
                     </p>
                     <p>

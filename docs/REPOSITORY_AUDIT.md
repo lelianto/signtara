@@ -4,7 +4,7 @@ Workspace was empty: no existing framework, lockfile, assets, or baseline app. S
 
 ## Inspected upstream snapshots
 
-- https://github.com/Alvnvnc/bisindo-translator — `4eb890d7c46e97214e3df103941efa54c25f3b2a`. MIT root license. Vanilla browser JavaScript, MediaPipe Tasks Vision 0.10.14. `web/model.json` contains MLP scaler and layers, 63 float features, 26 outputs A–Z, ReLU hidden layers and softmax. Wrist-relative coordinates divided by furthest wrist distance. Single-hand model, no temporal motion input. Upstream camera loaded runtime and landmark model from CDN; ISYARA bundles both locally. Model present and executable; original baseline camera could not be verified with a physical signer during this audit.
+- https://github.com/Alvnvnc/bisindo-translator — `4eb890d7c46e97214e3df103941efa54c25f3b2a`. MIT root license. Vanilla browser JavaScript, MediaPipe Tasks Vision 0.10.14. `web/model.json` contains MLP scaler and layers, 63 float features, 26 outputs A–Z, ReLU hidden layers and softmax. Wrist-relative coordinates divided by furthest wrist distance. Single-hand model, no temporal motion input. Upstream camera loaded runtime and landmark model from CDN; BISARA bundles both locally. Model present and executable; original baseline camera could not be verified with a physical signer during this audit.
 - https://github.com/indomiekwah/bisindo-detection — `ef21bf1b0814477b04c7eb868f25c8731538017b`. Python TensorFlow/Keras, MediaPipe Holistic/OpenCV. Keras weights and pickle encoders present. Default fixed model metadata specifies 60 frames × 154 features, **7 emotion classes**, not the 32 WL-BISINDO words: Jijik, Marah, Neutral, Sedih, Senang, Takut, Terkejut. Relative two-hand coordinates, orientation/finger features; this differs materially from Jemari normalization. No root license found. Do not copy, convert, or distribute these artifacts without permission. Pickle encoders were not executed.
 - https://github.com/AceKinnn/WL-BISINDO — `a1a2efdd911da810b1181f60505759614f5e9009`. Banten variant, 1,600 RGB videos, 32 glosses, five signers, Kaggle download outside repository (~2.16 GB per README). SPOTER and Siformer training baselines, SD/SI split metadata. No blanket root license found; nested `spoter/LICENSE` is Apache-2.0 but does not establish rights for dataset or other files. Dataset use/redistribution permission unresolved; no videos or trained vocabulary model integrated. No compatibility presumed.
 
@@ -19,7 +19,7 @@ Workspace was empty: no existing framework, lockfile, assets, or baseline app. S
 | Jemari smoother | Reference only | Replaced: clear stale votes on missing/uncertain frames |
 | Word Keras models | Blocked by licensing and semantic mismatch | Not copied; seven emotion labels are not vocabulary support |
 | WL-BISINDO | Reference only / blocked by unresolved data rights | No data or code copied |
-| Semantic adapters, pages, persistence, tests | Must be implemented | New modules in ISYARA |
+| Semantic adapters, pages, persistence, tests | Must be implemented | New modules in BISARA |
 
 ## Failure cases / compatibility
 

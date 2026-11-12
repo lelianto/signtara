@@ -53,7 +53,7 @@ components listed in the tables above.
 
 The Jemari code is released under the **MIT License** — see `LICENSE`.
 
-## ISYARA TwoHand v1 update
+## BISARA TwoHand v1 update
 
 The active model is now an independently implemented nearest-prototype classifier fitted on the original MIT-licensed alphabet photographs, not Jemari's 63-feature classifier. Dataset source: https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset, commit e1a48c6caa9d12318c8561e9962da845ab50226e, Copyright (c) 2024 Rhio Sutoyo. Exact MIT notice is in public/licenses/Alphabet-Dataset-MIT.txt. Full-resolution original training photographs are included with per-image provenance. The earlier Jemari claim of three thumbnails per letter resolved to repeated references to one unique file per letter; the new index intentionally lists one representative training photo per letter.
 

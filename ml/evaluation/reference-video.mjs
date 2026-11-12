@@ -12,7 +12,7 @@ try{for(const letter of letters){
   try{await page.waitForFunction(()=>!!document.querySelector('#transcript')?.value,{timeout:4000})}catch{}
   const predicted=await page.locator('#transcript').inputValue(),score=Number(await page.locator('meter').getAttribute('value')),status=await page.getByRole('status').first().textContent();
   const result={reference:letter,predicted,correct:predicted===letter,score,status,elapsedMs:performance.now()-start};results.push(result);console.log(JSON.stringify(result));
-  if(letter==='A'){await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'/tmp/isyara-twohand-A.png',fullPage:false})}
+  if(letter==='A'){await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'/tmp/bisara-twohand-A.png',fullPage:false})}
   await page.getByRole('button',{name:'Hentikan kamera'}).click();
  }catch(error){results.push({reference:letter,error:String(error),correct:false});console.log(letter,String(error))}finally{await page.close()}
 }}finally{await browser.close()}

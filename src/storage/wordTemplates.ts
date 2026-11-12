@@ -19,6 +19,7 @@ export function validWordTemplate(value: unknown): value is StoredWordTemplate {
 }
 
 let writes: Promise<unknown> = Promise.resolve();
+// Nama lama "isyara" (sebelum BISARA) sengaja dipertahankan; mengganti nama basis data menghilangkan kata rekaman yang sudah tersimpan.
 async function db() {
   return openDB('isyara-word-templates', 1, { upgrade(d) { d.createObjectStore('templates', { keyPath: 'id' }); } });
 }

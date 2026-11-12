@@ -190,8 +190,8 @@ export function App() {
             </a>
 
             <header className="topbar">
-                <button type="button" className="wordmark" onClick={() => go('talk')} aria-label="ISYARA, ke halaman Bicara">
-                    isyara<span aria-hidden="true">.</span>
+                <button type="button" className="wordmark" onClick={() => go('talk')} aria-label="BISARA, ke halaman Bicara">
+                    bisara<span aria-hidden="true">.</span>
                 </button>
                 <div className="topbar-end">
                     {langChip}
@@ -208,10 +208,10 @@ export function App() {
             </header>
 
             <nav className="rail" aria-label="Navigasi utama">
-                <button type="button" className="wordmark" onClick={() => go('talk')} aria-label="ISYARA, ke halaman Bicara">
-                    isyara<span aria-hidden="true">.</span>
+                <button type="button" className="wordmark" onClick={() => go('talk')} aria-label="BISARA, ke halaman Bicara">
+                    bisara<span aria-hidden="true">.</span>
                 </button>
-                <p className="rail-tagline">Isyarat jadi suara dalam bahasa daerahmu.</p>
+                <p className="rail-tagline">BISINDO, bahasa daerah, dan aksara dalam satu percakapan.</p>
                 <div className="rail-lang">
                     <span className="field-label">Bahasa tujuan</span>
                     {langChip}

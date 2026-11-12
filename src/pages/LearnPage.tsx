@@ -51,7 +51,7 @@ export function LearnPage({
         <div className="page page--wide">
             <header className="page-head">
                 <h1 className="title">Belajar</h1>
-                <p className="lead">Latih ejaan jari BISINDO dan ajari ISYARA kata isyaratmu sendiri. Progres tersimpan di perangkat ini.</p>
+                <p className="lead">Latih ejaan jari BISINDO dan ajari BISARA kata isyaratmu sendiri. Progres tersimpan di perangkat ini.</p>
                 <div className="segment segment--sm" role="tablist" aria-label="Materi belajar">
                     <button type="button" role="tab" aria-selected={tab === 'letters'} className={tab === 'letters' ? 'is-on' : ''} onClick={() => setTab('letters')}>
                         Huruf A–Z

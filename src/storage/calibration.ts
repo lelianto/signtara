@@ -7,6 +7,7 @@ export function validPersonalSample(value:unknown):value is PersonalSample{
  return !!s&&typeof s.id==='string'&&/^[A-Z]$/.test(s.label)&&[1,2].includes(s.handCount)&&s.featureVersion===FEATURE_VERSION&&s.modelVersion===MODEL_VERSION&&s.source==='personal'&&Number.isFinite(s.capturedAt)&&Array.isArray(s.features)&&s.features.length===FEATURE_COUNT&&s.features.every(Number.isFinite);
 }
 let writes:Promise<unknown>=Promise.resolve();
+// Nama lama "isyara" (sebelum BISARA) sengaja dipertahankan; mengganti nama basis data menghilangkan contoh pribadi yang sudah tersimpan.
 async function db(){return openDB('isyara-personal-signs',1,{upgrade(d){d.createObjectStore('samples',{keyPath:'id'})}})}
 export async function readCalibration():Promise<PersonalSample[]>{const d=await db();try{return(await d.getAll('samples')).filter(validPersonalSample)}finally{d.close()}}
 export async function saveCalibration(label:string,frames:{features:number[];handCount:number}[]){

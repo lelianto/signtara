@@ -1,4 +1,6 @@
-# ISYARA
+# BISARA
+
+Formerly ISYARA. Browser storage keys still use the old `isyara` prefix so data already saved on users' devices is kept.
 
 Local-first BISINDO research alphabet recognizer and Indonesian/Javanese learning app. React + strict TypeScript + Vite. No account, paid API, inference server, or frame upload.
 
