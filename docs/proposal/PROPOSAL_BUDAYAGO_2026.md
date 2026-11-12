@@ -1,4 +1,4 @@
-# Proposal ISYARA — BUDAYA GO! 2026
+# Proposal BISARA — BUDAYA GO! 2026
 
 12 November 2026 · Lelianto Eko Pradana
 
@@ -14,25 +14,25 @@ Draf ini disusun dari isi repositori per 12 November 2026 (commit `f78c82c`). St
 - [ ] Isi setiap `[PERLU DATA: ...]` dengan angka bersumber, atau hapus kalimatnya
 - [ ] Konfirmasi atau ganti setiap `[ASUMSI]`, terutama mitra komunitas Tuli
 
-**Catatan nama.** Nama "Isyara" sudah dipakai setidaknya dua proyek lain: aplikasi Android penerjemah SIBI dalam [makalah seminar ITI](https://semnas.iti.ac.id/tpx/index.php/c/article/download/389/128/928) (berkas November 2025, isi lengkapnya belum dicek) dan [Isyara Vision](https://ir.uitm.edu.my/id/eprint/145551/) dari UiTM Malaysia (April 2026, untuk Bahasa Isyarat Malaysia). Keduanya proyek akademik, bukan merek dagang. Keputusan tim: nama ISYARA tetap dipakai, dengan pembeda yang ditegaskan di judul (BISINDO, bahasa daerah, aksara). Sebelum rilis publik, cek PDKI dan toko aplikasi.
+**Catatan nama.** BISARA berasal dari BISINDO, bicara, dan aksara. Nama sebelumnya, ISYARA, diganti karena sudah dipakai dua proyek akademik lain: aplikasi penerjemah SIBI dalam [makalah seminar ITI](https://semnas.iti.ac.id/tpx/index.php/c/article/download/389/128/928) dan [Isyara Vision](https://ir.uitm.edu.my/id/eprint/145551/) dari UiTM Malaysia. Pencarian web per 12 November 2026 tidak menemukan produk lain bernama BISARA. Sebelum rilis publik, cek PDKI dan toko aplikasi.
 
 Info lomba yang dipakai berasal dari peluncuran edisi Oktober 2025: tema "Titik Temu Budaya dan Teknologi", kategori Mahasiswa dan Profesional, tahapan seleksi administrasi, pendalaman substansi, pendampingan mentor, dan grand final ([Metro TV News](https://www.metrotvnews.com/read/kpLCaP4Q-kompetisi-budaya-go-titik-temu-budaya-dan-teknologi-untuk-pemajuan-kebudayaan)).
 
 ## Judul
 
-**ISYARA: BISINDO, Bahasa Daerah, dan Aksara dalam Satu Percakapan**
+**BISARA: BISINDO, Bahasa Daerah, dan Aksara dalam Satu Percakapan**
 
-Aplikasi web berbasis AI yang membaca Bahasa Isyarat Indonesia (BISINDO), menerjemahkannya ke 10 bahasa daerah lengkap dengan aksara Nusantara, mengucapkannya, lalu menampilkan balasan lawan bicara sebagai teks.
+Aplikasi web berbasis AI yang membaca Bahasa Isyarat Indonesia (BISINDO), menerjemahkannya ke 10 bahasa daerah lengkap dengan aksara Nusantara, mengucapkannya, lalu menampilkan balasan lawan bicara sebagai teks. Namanya dari BISINDO, bicara, dan aksara.
 
 Alternatif judul:
 
-1. ISYARA: Titik Temu BISINDO dan Bahasa Daerah
-2. ISYARA: Jembatan BISINDO, Bahasa Daerah, dan Aksara Nusantara
-3. ISYARA: Satu Percakapan, Tiga Warisan Bahasa
+1. BISARA: Titik Temu BISINDO dan Bahasa Daerah
+2. BISARA: Jembatan BISINDO, Bahasa Daerah, dan Aksara Nusantara
+3. BISARA: Satu Percakapan, Tiga Warisan Bahasa
 
 ## Ringkasan eksekutif
 
-ISYARA membantu teman Tuli bercakap langsung dengan orang di sekitarnya, dalam bahasa daerah lawan bicaranya. Pengguna berisyarat BISINDO di depan kamera ponsel. Aplikasi membacanya sebagai teks Bahasa Indonesia, menerjemahkannya ke salah satu dari 10 bahasa daerah, menampilkan aksaranya (Jawa, Sunda, atau Bali), lalu mengucapkannya. Balasan lawan bicara lewat suara atau ketikan ditampilkan kembali sebagai teks.
+BISARA membantu teman Tuli bercakap langsung dengan orang di sekitarnya, dalam bahasa daerah lawan bicaranya. Pengguna berisyarat BISINDO di depan kamera ponsel. Aplikasi membacanya sebagai teks Bahasa Indonesia, menerjemahkannya ke salah satu dari 10 bahasa daerah, menampilkan aksaranya (Jawa, Sunda, atau Bali), lalu mengucapkannya. Balasan lawan bicara lewat suara atau ketikan ditampilkan kembali sebagai teks.
 
 Karya ini mempertemukan tiga warisan bahasa yang jarang dipertemukan: BISINDO, bahasa daerah dengan ragam tuturnya (Ngoko/Krama, Loma/Lemes, Andap/Alus), dan aksara Nusantara. Semua AI berjalan di perangkat pengguna. Tidak ada video yang diunggah, tidak perlu akun, dan tidak ada biaya server.
 
@@ -54,9 +54,9 @@ Alat yang ada menyelesaikan masalah ini satu per satu. Ada kamus isyarat, kamus 
 
 ## Keterkaitan dengan pemajuan kebudayaan
 
-ISYARA menyentuh dua Objek Pemajuan Kebudayaan dalam UU No. 5 Tahun 2017, yaitu **bahasa** (BISINDO dan 10 bahasa daerah) dan **manuskrip** (lewat aksara Nusantara yang dipakai untuk menulisnya). Karya ini menjalankan keempat langkah pemajuan kebudayaan:
+BISARA menyentuh dua Objek Pemajuan Kebudayaan dalam UU No. 5 Tahun 2017, yaitu **bahasa** (BISINDO dan 10 bahasa daerah) dan **manuskrip** (lewat aksara Nusantara yang dipakai untuk menulisnya). Karya ini menjalankan keempat langkah pemajuan kebudayaan:
 
-| Langkah (UU 5/2017) | Wujudnya di ISYARA |
+| Langkah (UU 5/2017) | Wujudnya di BISARA |
 | --- | --- |
 | Pelindungan | Kosakata isyarat, kosakata 10 bahasa daerah, dan ragam tutur didokumentasikan dalam kamus terbuka beserta asal-usul datanya |
 | Pengembangan | Model AI pengenal isyarat BISINDO dan mesin terjemahan bahasa daerah dikembangkan dan dievaluasi secara terbuka |
@@ -86,7 +86,7 @@ flowchart LR
 
 Bahasa daerah dan aksara menjadi inti alur: isyarat masuk lewat Bahasa Indonesia, keluar dalam bahasa lawan bicara, dan balasannya kembali dengan arti Indonesianya.
 
-**Skenario.** Rina, seorang Tuli, berbelanja di pasar di Yogyakarta. Pedagangnya sudah sepuh dan lebih nyaman berbahasa Jawa. Rina membuka ISYARA di ponsel dan mengarahkan kamera ke tangannya. Ia memperagakan isyarat kata "berapa", lalu mengeja "harga cabai" dengan jari. Karena lawan bicaranya lebih tua, Rina memilih ragam halus. Aplikasi menampilkan kalimatnya dalam bahasa Jawa Krama, lengkap dengan aksara Jawa. Rina menekan **Ucapkan**, dan ponsel membacakannya. Pedagang menjawab dengan suara. Jawabannya muncul di layar Rina sebagai teks beserta arti Bahasa Indonesianya.
+**Skenario.** Rina, seorang Tuli, berbelanja di pasar di Yogyakarta. Pedagangnya sudah sepuh dan lebih nyaman berbahasa Jawa. Rina membuka BISARA di ponsel dan mengarahkan kamera ke tangannya. Ia memperagakan isyarat kata "berapa", lalu mengeja "harga cabai" dengan jari. Karena lawan bicaranya lebih tua, Rina memilih ragam halus. Aplikasi menampilkan kalimatnya dalam bahasa Jawa Krama, lengkap dengan aksara Jawa. Rina menekan **Ucapkan**, dan ponsel membacakannya. Pedagang menjawab dengan suara. Jawabannya muncul di layar Rina sebagai teks beserta arti Bahasa Indonesianya.
 
 **Langkah di balik layar:**
 
@@ -108,7 +108,7 @@ Bahasa daerah yang didukung: Jawa, Sunda, Bali, Madura, Batak Toba, Minangkabau,
 
 Kebaruan utamanya adalah kombinasi: isyarat, bahasa daerah, ragam tutur, dan aksara dalam satu percakapan, berjalan sepenuhnya di perangkat.
 
-| Aspek | Solusi yang umum ada | ISYARA |
+| Aspek | Solusi yang umum ada | BISARA |
 | --- | --- | --- |
 | Bahasa keluaran | Bahasa Indonesia saja | 10 bahasa daerah + Bahasa Indonesia, dengan aksara Jawa, Sunda, dan Bali |
 | Ragam tutur | Tidak dibedakan | Ngoko/Krama, Loma/Lemes, Andap/Alus, dengan penanda bila bentuk halus belum ada |

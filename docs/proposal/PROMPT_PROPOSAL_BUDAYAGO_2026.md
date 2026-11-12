@@ -1,4 +1,4 @@
-# Prompt: Proposal ISYARA untuk BUDAYA GO! 2026
+# Prompt: Proposal BISARA untuk BUDAYA GO! 2026
 
 > Cara pakai: isi bagian bertanda `[[...]]` dulu (terutama panduan resmi lomba dan data tim), lalu salin semua isi di bawah garis ke AI pilihan Om. Fakta proyek di bawah diambil dari repo per 12 Nov 2026 (commit `f78c82c`). Angka akurasi sengaja ditulis lengkap dengan batasannya.
 
@@ -23,7 +23,9 @@ Yang saya ketahui dari edisi sebelumnya (verifikasi lagi dengan panduan resmi di
 **Data tim:** [[nama, peran, latar belakang. Sebutkan juga kalau ada anggota/mitra Tuli, juru bahasa isyarat, atau ahli bahasa daerah]]
 **Batas panjang:** [[mis. maks. 10 halaman / 2.000 kata]]
 
-## TENTANG KARYA: ISYARA
+## TENTANG KARYA: BISARA
+
+**Nama:** BISARA, dari BISINDO, bicara, dan aksara.
 
 **Satu kalimat:** Aplikasi web *local-first* yang membantu teman Tuli/speech-impaired bercakap dengan orang di sekitarnya. Isyarat BISINDO dibaca kamera, diubah menjadi teks Bahasa Indonesia, diterjemahkan ke salah satu dari 10 bahasa daerah (lengkap dengan aksara Nusantara), lalu diucapkan. Balasan lawan bicara lewat suara atau ketikan ditampilkan kembali sebagai teks.
 
